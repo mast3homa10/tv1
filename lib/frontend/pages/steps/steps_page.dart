@@ -154,7 +154,7 @@ class _StepsPageState extends State<StepsPage> {
                                 FlutterClipboard.copy(
                                         finalController.transaction.value.id!)
                                     .then((value) => log('copied'));
-                                Get.snackbar("توجه!", "کپی شد");
+                                Get.snackbar("توجه!", "آی دی تراکنش کپی شد");
                               }),
                         ),
                         Expanded(

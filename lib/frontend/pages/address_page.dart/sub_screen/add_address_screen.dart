@@ -27,6 +27,8 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
   final addressController = Get.put(AddressPageController());
   final exchangeController = Get.find<ExchangePageController>();
   bool isPressed = false;
+  bool isFirstBoxValid = false;
+  bool isssecondBoxValid = false;
   Button currenButton = Button.first;
   @override
   Widget build(BuildContext context) {
@@ -38,6 +40,7 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
             child: Column(
               children: [
                 AddressBox(
+                  isActive: isFirstBoxValid,
                   hintText: 'وارد کردن آدرس',
                   textController: addressController.textAddressController,
                 ),
@@ -60,6 +63,7 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                 ),
                 if (addressController.isSecondBoxShow.value)
                   AddressBox.support(
+                    isActive: isssecondBoxValid,
                     hintText: ' وارد کردن آدرس پشتیبان',
                     textController:
                         addressController.textSupportAddressController,
@@ -102,6 +106,7 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                         addressController.showSecondBox();
                         currenButton = Button.second;
                         isPressed = false;
+                        isFirstBoxValid = true;
                       });
                     } else {
                       setState(() {
@@ -139,6 +144,7 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                                 setState(() {
                                   currenButton = Button.last;
                                   isPressed = false;
+                                  isssecondBoxValid = true;
                                 });
                                 Get.back();
                               },
@@ -176,6 +182,7 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                       setState(() {
                         currenButton = Button.last;
                         isPressed = false;
+                        isssecondBoxValid = true;
                       });
                     } else {
                       setState(() {

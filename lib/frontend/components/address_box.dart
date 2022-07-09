@@ -12,21 +12,27 @@ import '../../backend/api/validation_address.dart';
 import '../pages/exchange/exchange_page_controller.dart';
 
 class AddressBox extends StatefulWidget {
+  final String hintText;
+  final Color activeColor;
+  final int boxId;
+  final TextEditingController textController;
+  final bool isActive;
   const AddressBox({
     Key? key,
     this.boxId = 0,
     this.hintText = '',
+    this.activeColor = Colors.green,
+    this.isActive = false,
     required this.textController,
   }) : super(key: key);
   const AddressBox.support({
     Key? key,
     this.boxId = 1,
     this.hintText = '',
+    this.activeColor = Colors.green,
+    this.isActive = false,
     required this.textController,
   }) : super(key: key);
-  final String hintText;
-  final int boxId;
-  final TextEditingController textController;
 
   @override
   State<AddressBox> createState() => _AddressBoxState();
@@ -46,8 +52,9 @@ class _AddressBoxState extends State<AddressBox> {
       width: double.infinity,
       decoration: BoxDecoration(
         border: Border.all(
-          color:
-              Theme.of(context).dividerTheme.color ?? const Color(0xFFEEEEEE),
+          color: widget.isActive
+              ? widget.activeColor
+              : Theme.of(context).dividerTheme.color ?? const Color(0xFFEEEEEE),
           style: BorderStyle.solid,
           width: 2.0,
         ),

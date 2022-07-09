@@ -35,14 +35,26 @@ class _Step2State extends State<Step2> {
     super.initState();
     timer = Timer.periodic(const Duration(seconds: 10), (Timer t) async {
       transactionStatus = await GetTransactionStatusApi()
-          .getExchangeRate('TEU2FsdGVkX1/bvGBmShmCCLh3ppqPc8Lu9hBe4mLSjm0=');
-      setState(() {
+          .getExchangeRate(finalController.transaction.value.id);
+      setState(() {});
+      // Transaction status:
+      //   new,
+      //   waiting,
+      //   confirming,
+      //   exchanging,
+      //   sending,
+      //   finished,
+      //   failed,
+      //   refunded,
+      //   verifying
+      if (transactionStatus!.txStatus == 'confirming' ||
+          transactionStatus!.txStatus == 'exchanging' ||
+          transactionStatus!.txStatus == 'sending') {
         log('status : ${transactionStatus!.txStatus}');
-      });
-      if (transactionStatus!.txStatus == 'waiting') {
+      } else {
         await Future.delayed(const Duration(seconds: 5));
         dispose();
-      } else {}
+      }
     });
   }
 

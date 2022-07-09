@@ -1,9 +1,13 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
 import 'package:tv1/frontend/components/custom_big_button.dart';
 import 'package:tv1/frontend/pages/dashboard/dashboard_body.dart';
 
+import '../../../../backend/api/get_transaction_status.dart';
+import '../../../../backend/models/get_transaction_status_model.dart';
 import '../../../../frontend/pages/address_page.dart/address_page_controller.dart';
 import '../../exchange/exchange_page_controller.dart';
 import '../steps_page_controller.dart';
@@ -23,6 +27,42 @@ class _Step3State extends State<Step3> {
   final exchangeController = Get.put(ExchangePageController());
 
   final addressController = Get.put(AddressPageController());
+  bool isFinised = false;
+  GetTransactionStatusModel? transactionStatus;
+  getTransactionResult() async {
+    transactionStatus = await GetTransactionStatusApi()
+        .getExchangeRate(finalController.transaction.value.id);
+    setState(() {});
+    // Transaction status:
+    //   new,
+    //   waiting,
+    //   confirming,
+    //   exchanging,
+    //   sending,
+    //   finished,
+    //   failed,
+    //   refunded,
+    //   verifying
+    if (transactionStatus!.txStatus == 'finished') {
+      log('status : ${transactionStatus!.txStatus}');
+      setState(() {
+        isFinised = true;
+      });
+    } else {
+      log('status : ${transactionStatus!.txStatus}');
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getTransactionResult();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,6 +80,13 @@ class _Step3State extends State<Step3> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    isFinised ? 'عملیات موفق' : 'عملیات ناموفق',
+                    style: Theme.of(context).textTheme.headline5,
+                  ),
+                ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Row(

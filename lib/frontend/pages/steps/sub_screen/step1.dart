@@ -36,7 +36,7 @@ class _Step1State extends State<Step1> {
     super.initState();
     timer = Timer.periodic(const Duration(seconds: 10), (Timer t) async {
       transactionStatus = await GetTransactionStatusApi()
-          .getExchangeRate('TEU2FsdGVkX1/bvGBmShmCCLh3ppqPc8Lu9hBe4mLSjm0=');
+          .getExchangeRate(finalController.transaction.value.id);
       setState(() {
         log('status : ${transactionStatus!.txStatus}');
       });
@@ -148,7 +148,11 @@ class _Step1State extends State<Step1> {
                                 onPressed: () {
                                   FlutterClipboard.copy(finalController
                                           .transaction.value.payinAddress!)
-                                      .then((value) => log('copied'));
+                                      .then((value) {
+                                    log('copied');
+
+                                    Get.snackbar('توجه!', 'آدرس کپی شد');
+                                  });
                                 }),
                           ),
                           const VerticalDivider(
