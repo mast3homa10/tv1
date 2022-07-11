@@ -52,7 +52,7 @@ class _Step2State extends State<Step2> {
           transactionStatus!.txStatus == 'sending') {
         log('status : ${transactionStatus!.txStatus}');
       } else {
-        await Future.delayed(const Duration(seconds: 5));
+        await Future.delayed(const Duration(seconds: 15));
         dispose();
       }
     });

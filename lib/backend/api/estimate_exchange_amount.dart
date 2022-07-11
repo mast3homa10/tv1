@@ -7,6 +7,7 @@ import '../network_constants.dart';
 
 class EstimateExchangeAmountApi {
   Future<EstimateExchangeAmountModel?> getAmount({
+    bool isForReverse = false,
     String? sourceCurrency,
     String? destinationCurrency,
     String? directionOfExchangeFlow = "direct",
@@ -14,20 +15,37 @@ class EstimateExchangeAmountApi {
     double? sourceAmount,
     String? sourceNetwork,
     String? destinationNetwork,
+    double? destinationAmount,
   }) async {
     try {
-      http.Response response =
-          await http.post(Uri.parse(baseUrl + esimatExchangeAmountEndpoint),
-              body: json.encode({
-                "sourceCurrency": sourceCurrency,
-                "destinationCurrency": destinationCurrency,
-                "type": type,
-                "directionOfExchangeFlow": directionOfExchangeFlow,
-                "sourceAmount": sourceAmount,
-                "sourceNetwork": sourceNetwork,
-                "destinationNetwork": destinationNetwork
-              }),
-              headers: {'Content-Type': 'application/json'});
+      http.Response response;
+      if (isForReverse) {
+        response =
+            await http.post(Uri.parse(baseUrl + esimatExchangeAmountEndpoint),
+                body: json.encode({
+                  "sourceCurrency": sourceCurrency,
+                  "destinationCurrency": destinationCurrency,
+                  "type": type,
+                  "directionOfExchangeFlow": directionOfExchangeFlow,
+                  "sourceNetwork": sourceNetwork,
+                  "destinationNetwork": destinationNetwork,
+                  "destinationAmount": destinationAmount,
+                }),
+                headers: {'Content-Type': 'application/json'});
+      } else {
+        response =
+            await http.post(Uri.parse(baseUrl + esimatExchangeAmountEndpoint),
+                body: json.encode({
+                  "sourceCurrency": sourceCurrency,
+                  "destinationCurrency": destinationCurrency,
+                  "type": type,
+                  "directionOfExchangeFlow": directionOfExchangeFlow,
+                  "sourceAmount": sourceAmount,
+                  "sourceNetwork": sourceNetwork,
+                  "destinationNetwork": destinationNetwork,
+                }),
+                headers: {'Content-Type': 'application/json'});
+      }
 
       if (response.statusCode == 200) {
         Map<String, dynamic> data =

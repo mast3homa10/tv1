@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'package:flutter/material.dart';
 
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -19,12 +18,6 @@ class DashboardBody extends StatelessWidget {
         builder: (dashboardBodyController) {
       return WillPopScope(
         onWillPop: () async {
-          log('${exchangePageController.isScreenChange.value}');
-
-          if (exchangePageController.isScreenChange.value) {
-            log('message');
-            exchangePageController.changeScreen();
-          }
           bool? result = await dashboardBodyController.onBackPressed(context);
           result ??= false;
           return result;

@@ -87,13 +87,13 @@ class CustomSearchDelegate extends SearchDelegate {
 
   @override
   Widget buildSuggestions(BuildContext context) {
-    final exchangePageController = Get.put(ExchangePageController());
+    final exchangeController = Get.put(ExchangePageController());
     return FutureBuilder<List<CurrencyModel>?>(
         future: CurrencyListApi().getList(),
         builder: (context, snapShot) {
           List<CurrencyModel> suggestions = ((currentBox == 0
-                      ? exchangePageController.forSellList
-                      : exchangePageController.forBuyList) ??
+                      ? exchangeController.forSellList
+                      : exchangeController.forBuyList) ??
                   searchResultsList)
               .where((searchResult) {
             final String userInput = query.toLowerCase();
@@ -190,8 +190,7 @@ class CustomSearchDelegate extends SearchDelegate {
                                               width: 50,
                                               height: 50,
                                               child: SvgPicture.network(
-                                                (imgUrl +
-                                                    '${suggestion.legacyTicker}.svg'),
+                                                ('$imgUrl${suggestion.legacyTicker}.svg'),
                                                 semanticsLabel: 'img',
                                                 placeholderBuilder: (BuildContext
                                                         context) =>
@@ -222,7 +221,9 @@ class CustomSearchDelegate extends SearchDelegate {
                                       Get.put(ExchangePageController());
                                   query = suggestion.engName ?? "";
                                   controller.updateCurrencyChoice(
-                                      currency: suggestion, item: currentBox);
+                                      isForReverse: true,
+                                      currency: suggestion,
+                                      item: currentBox);
 
                                   close(context, null);
                                 } else {

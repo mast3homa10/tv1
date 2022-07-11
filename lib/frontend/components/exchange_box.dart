@@ -13,8 +13,8 @@ import '../../backend/network_constants.dart';
 import '../../constants.dart';
 import 'timer/custom_timer.dart';
 
-class CalculateBox extends StatelessWidget {
-  CalculateBox({
+class ExchangeBox extends StatelessWidget {
+  ExchangeBox({
     Key? key,
     this.boxId = 0,
     this.textController,
@@ -36,7 +36,7 @@ class CalculateBox extends StatelessWidget {
   final VoidCallback? closeIconPressed;
   final VoidCallback? onPressed;
 
-  CalculateBox.second({
+  ExchangeBox.second({
     Key? key,
     this.boxId = 1,
     this.textController,
@@ -210,7 +210,9 @@ class CalculateBox extends StatelessWidget {
                             .headline3!
                             .copyWith(
                                 color: Theme.of(context).dividerTheme.color)),
-                    onChanged: controller.onChangeHandler,
+                    onChanged: boxId == 1
+                        ? controller.secondOnChange
+                        : controller.firstOnChange,
                     validator: (value) {
                       if (double.parse(value!) <
                           controller.minimumExchangeAmount.value) {

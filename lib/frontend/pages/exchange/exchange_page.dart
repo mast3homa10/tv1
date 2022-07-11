@@ -1,10 +1,9 @@
-import 'dart:developer';
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-import '../../../frontend/components/calculate_box.dart';
+import '../../components/exchange_box.dart';
 import '../../../frontend/components/convert_button.dart';
 import '../../../frontend/components/custom_big_button.dart';
 import '../../../frontend/components/custom_search_delegate.dart';
@@ -16,108 +15,113 @@ class ExchangePage extends StatelessWidget {
   ExchangePage({Key? key}) : super(key: key);
 
   final timerController = Get.put(TimerController());
+
   @override
   Widget build(BuildContext context) {
     return GetBuilder<ExchangePageController>(
       builder: (exchangeController) {
-        if (!exchangeController.connectToNetwork.value) {
-          return const Center(child: CircularProgressIndicator());
-        } else {
-          log(exchangeController.destinationAmount.toString());
-          return Scaffold(
-            resizeToAvoidBottomInset: false,
-            body: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // the Expanded widget below contains ''' cryptocurrency calculator '''.
-                Expanded(
-                  child: SizedBox(
-                    height: Get.height * 0.4,
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          /// for sell box
-                          CalculateBox(
-                            textController:
-                                exchangeController.sourceTextController,
-                            currency: exchangeController.sourceCurrency,
-                            /* initialValue:
-                                  exchangeController.sourceAmount.toString(), */
-                            onPressed: () {
-                              // launch searchbox by tap here
-                              showSearch(
-                                  context: context,
-                                  delegate:
-                                      CustomSearchDelegate(currentBox: 0));
-                            },
-                          ),
-                          // calculate result
-                          Padding(
-                            padding:
-                                const EdgeInsets.only(left: 10.0, right: 10.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                buildResult(context, exchangeController),
-
-                                // Reversed button
-                                ReversedButton(),
-                              ],
+        try {
+          if (!exchangeController.connectToNetwork.value) {
+            return const Center(child: CircularProgressIndicator());
+          } else {
+            return Scaffold(
+              resizeToAvoidBottomInset: false,
+              body: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // the Expanded widget below contains ''' cryptocurrency calculator '''.
+                  Expanded(
+                    child: SizedBox(
+                      height: Get.height * 0.4,
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 8.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            /// for sell box
+                            ExchangeBox(
+                              textController:
+                                  exchangeController.sourceTextController,
+                              currency: exchangeController.isReversed.value
+                                  ? exchangeController.destinationCurrency
+                                  : exchangeController.sourceCurrency,
+                              onPressed: () {
+                                // launch searchbox by tap here
+                                showSearch(
+                                    context: context,
+                                    delegate:
+                                        CustomSearchDelegate(currentBox: 0));
+                              },
                             ),
-                          ),
-                          // for buy box
-                          CalculateBox.second(
-                            textController:
-                                exchangeController.destinationTextController,
-                            /*  initialValue:
-                                  exchangeController.destinationAmount.toString(),
-                              */
-                            currency: exchangeController.destinationCurrency,
-                            onPressed: () {
-                              // launch searchbox by tap here
-                              showSearch(
-                                  context: context,
-                                  delegate: CustomSearchDelegate(
-                                    currentBox: 1,
-                                  ));
-                            },
-                            isIconChange: exchangeController.isFixed.value,
-                            openIconPressed: () {
-                              buildSnakBar(context);
-                              exchangeController.updateFix();
-                            },
-                            closeIconPressed: () {
-                              timerController.stopTimer();
-                              exchangeController.updateFix();
-                            },
-                          ),
-                        ],
+                            // exchange result
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                  left: 10.0, right: 10.0),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  buildResult(context, exchangeController),
+
+                                  // Reversed button
+                                  ReversedButton(
+                                      onTap: exchangeController.updateReversed),
+                                ],
+                              ),
+                            ),
+                            // for buy box
+                            ExchangeBox.second(
+                              textController:
+                                  exchangeController.destinationTextController,
+                              currency: exchangeController.isReversed.value
+                                  ? exchangeController.sourceCurrency
+                                  : exchangeController.destinationCurrency,
+                              onPressed: () {
+                                // launch searchbox by tap here
+                                showSearch(
+                                    context: context,
+                                    delegate: CustomSearchDelegate(
+                                      currentBox: 1,
+                                    ));
+                              },
+                              isIconChange: exchangeController.isFixed.value,
+                              openIconPressed: () {
+                                buildSnakBar(context);
+                                exchangeController.updateFix();
+                              },
+                              closeIconPressed: () {
+                                timerController.stopTimer();
+                                exchangeController.updateFix();
+                              },
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
 
-                // the padding widget below contains '''add address button'''.
-                Padding(
-                  padding: const EdgeInsets.all(15.0),
-                  child: CustomBigButton(
-                    label: 'وارد کردن آدرس',
-                    onPressed: () {
-                      // Get.snackbar('توجه!', "در حال توسعه ...");
-                      if (timerController.timer != null) {
-                        timerController.stopTimer();
-                      }
+                  // the padding widget below contains '''add address button'''.
+                  Padding(
+                    padding: const EdgeInsets.all(15.0),
+                    child: CustomBigButton(
+                      label: 'وارد کردن آدرس',
+                      onPressed: () {
+                        // Get.snackbar('توجه!', "در حال توسعه ...");
+                        if (timerController.timer != null) {
+                          timerController.stopTimer();
+                        }
 
-                      Get.to(AddressPage());
-                    },
+                        Get.to(AddressPage());
+                      },
+                    ),
                   ),
-                ),
-              ],
-            ),
-          );
+                ],
+              ),
+            );
+          }
+        } catch (e) {
+          return const Center(child: CircularProgressIndicator());
         }
       },
     );

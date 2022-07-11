@@ -125,7 +125,7 @@ class WelcomePage extends GetView<WelcomePageController> {
                   style: Theme.of(context).textTheme.button!.copyWith(
                       color: Theme.of(context).scaffoldBackgroundColor),
                 ),
-                press: () {
+                onPressed: () {
                   Get.off(DashboardBody());
                 },
               ),

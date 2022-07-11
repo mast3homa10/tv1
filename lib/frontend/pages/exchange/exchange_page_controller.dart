@@ -1,36 +1,33 @@
+import 'dart:io';
 import 'dart:async';
 import 'dart:developer';
-import 'dart:io';
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
+import 'package:tv1/backend/api/currency_list_api.dart';
 
-import '../../../backend/api/check_pair_be_vaild.dart';
-import '../../../backend/api/estimate_exchange_amount.dart';
+import '../../../backend/api/init_table.dart';
 import '../../../backend/api/get_exchange_rate.dart';
+import '../../../backend/api/check_pair_be_vaild.dart';
+import '../../../backend/models/currency_model.dart';
+import '../../../backend/api/estimate_exchange_amount.dart';
 import '../../../backend/models/check_pair_be_vaild_model.dart';
 import '../../../backend/models/estimate_exchange_amount_model.dart';
+import '../../../backend/models/get_exchange_rate_model.dart';
 import '../../../backend/models/init_tabel_model.dart';
-import '../../../backend/api/init_table.dart';
-import '../../../backend/models/currency_model.dart';
 
 class ExchangePageController extends GetxController {
   TextEditingController sourceTextController = TextEditingController();
   TextEditingController destinationTextController = TextEditingController();
-
-  var isSupportAddressMustBeEmpty = false.obs;
-  setSupportAddress() => isSupportAddressMustBeEmpty = true.obs;
-
-  var isSecondBoxShow = false.obs;
-  showSecondBox() => isSecondBoxShow = true.obs;
+  var isTyping = false.obs;
+  var mainAddress = ''.obs;
+  var supportAddress = ''.obs;
 
   RxBool connectToNetwork = false.obs;
   RxBool isFixed = false.obs;
   RxBool isReversed = false.obs;
-  var currentTopItem = 0.obs;
-  var searchController = 0.obs;
-  var userAddress = ''.obs;
-  var supportAddress = ''.obs;
+  var searchItem = 0.obs;
+
   var maximumExchangeAmount = 0.0.obs;
   var minimumExchangeAmount = 0.0.obs;
   CurrencyModel? sourceCurrency;
@@ -40,90 +37,46 @@ class ExchangePageController extends GetxController {
   List<CurrencyModel>? forSellList;
   List<CurrencyModel>? forBuyList;
   List<CurrencyModel>? currencyList = [];
-  InitTabelModel? estimate;
   CheckPairBeVaildModel? pairBeValid;
+  GetExchangeRateModel? exchangeRate;
+  InitTabelModel? estimate;
+  EstimateExchangeAmountModel? estimateAmount;
+  var tempType = ''.obs;
+
   @override
   void onInit() {
     checkConnection();
     super.onInit();
   }
 
-  late Timer searchOnStoppedTyping =
-      Timer(const Duration(milliseconds: 800), () => search('here'));
+  late Timer sendOnStoppedTyping = Timer(const Duration(milliseconds: 800),
+      () => log('request on stopped typing'));
 
-  onChangeHandler(value) {
-    const duration = Duration(
-        milliseconds:
-            800); // set the duration that you want call search() after that.
-    searchOnStoppedTyping.cancel();
-    update();
-    /* setState(
-        () => searchOnStoppedTyping = new Timer(duration, () => search(value))); */
-    searchOnStoppedTyping = Timer(duration, () => search(value));
-    update();
-  }
+// use '''onChangeHandler''' to send request after stop typing
+  firstOnChange(value) {
+    const duration = Duration(milliseconds: 600);
+    sendOnStoppedTyping.cancel();
+    sendOnStoppedTyping = Timer(
+        duration,
+        () => updateExchange(
+              source: sourceCurrency,
+              destination: destinationCurrency,
+            ));
 
-  search(value) {
-    log('hello world from search . the value is $value');
-  }
-
-  updateEstimateAmount(double sellAmount, double buyAmount) {
-    sourceAmount = 0.0.obs;
-    destinationAmount = 0.0.obs;
-    sourceAmount = sellAmount.obs;
-    destinationAmount = buyAmount.obs;
-    sourceTextController.text = sourceAmount.toString();
-    destinationTextController.text = destinationAmount.toString();
+    // () => updateExchange(
+    // source: sourceCurrency, destination: destinationCurrency));
     update();
   }
 
-  validation({
-    CurrencyModel? currencyForBuy,
-    CurrencyModel? currencyForSell,
-  }) async {
-    String tempType = isFixed.value ? "fix" : "not-fix";
-
-    pairBeValid = await CheckPairBeVaildApi().getPairBeVaild(
-      type: tempType,
-      sourceNetwork: currencyForSell!.inNetwork,
-      sourceCurrency: currencyForSell.symbol,
-      destinationNetwork: currencyForBuy!.inNetwork,
-      destinationCurrency: currencyForBuy.symbol,
-    );
-    message(title: 'pair be vaild ', content: pairBeValid!);
-    if (pairBeValid!.type!['fix'] && pairBeValid!.type!['not-fix']) {
-      var exchangeRate = await GetExchangeRateApi().getExchangeRate(
-        type: tempType,
-        sourceNetwork: currencyForSell.inNetwork,
-        sourceCurrency: currencyForSell.symbol,
-        destinationNetwork: currencyForBuy.inNetwork,
-        destinationCurrency: currencyForBuy.symbol,
-      );
-      minimumExchangeAmount = exchangeRate!.minimumExchangeAmount!.obs;
-      maximumExchangeAmount = double.parse(
-              exchangeRate.maximumExchangeAmount! == ''
-                  ? '0'
-                  : exchangeRate.maximumExchangeAmount!)
-          .obs;
-      EstimateExchangeAmountModel? est =
-          await EstimateExchangeAmountApi().getAmount(
-        type: tempType,
-        sourceNetwork: currencyForSell.inNetwork,
-        sourceCurrency: currencyForSell.symbol,
-        destinationNetwork: currencyForBuy.inNetwork,
-        destinationCurrency: currencyForBuy.symbol,
-        directionOfExchangeFlow: 'direct',
-        sourceAmount: minimumExchangeAmount.value,
-      );
-      updateEstimateAmount(
-          minimumExchangeAmount.value, est!.destinationAmount ?? 0);
-      log("forSellAmount :$sourceAmount");
-      log("estimate amount :${est.destinationAmount}");
-      message(title: 'get exchange rate ', content: exchangeRate);
-    } else if (!pairBeValid!.type!['fix'] && pairBeValid!.type!['not-fix']) {
-    } else {
-      Get.snackbar('توجه!', "این جفت ارز با هم قابل مبادله نیستند");
-    }
+  secondOnChange(value) {
+    const duration = Duration(milliseconds: 800);
+    sendOnStoppedTyping.cancel();
+    sendOnStoppedTyping = Timer(
+        duration,
+        () => updateExchange(
+            isForReverse: true,
+            source: sourceCurrency,
+            destination: destinationCurrency));
 
     update();
   }
@@ -133,94 +86,248 @@ class ExchangePageController extends GetxController {
     try {
       final result = await InternetAddress.lookup('example.com');
       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
-        log('connected');
+        message(title: 'Connection', content: 'connected');
         connectToNetwork = true.obs;
         //get init table
-        var initTable = await InitTableApi().initTable();
-        estimate = initTable!['estimate'] ?? [];
-
-        updateEstimateAmount(
-            estimate!.sourceAmount!, estimate!.destinationAmount!);
-        log('Estimate Amount : ${estimate!.destinationAmount}.');
-
-        // get currency list
-        currencyList = initTable['list'] ?? {};
-        /*         
-        currencyList = await CurrencyListApi().getList();
-        */
-        sourceCurrency = currencyList!
-            .where((item) => item.engName!.toLowerCase() == 'bitcoin')
-            .first;
-        log("sourceCurrency is ${sourceCurrency!.engName} .");
-        destinationCurrency = currencyList!
-            .where((item) => item.engName!.toLowerCase() == 'ethereum')
-            .first;
-        log("destinationCurrency is ${destinationCurrency!.engName} .");
-
-        // Source currency will be selected from ""sellList"".
-        forSellList = currencyList!
-            .where((item) => item.availableForSell == true)
-            .toList();
-
-        // Destination currency  will be selected from ""buyList"".
-        forBuyList = currencyList!
-            .where((item) => item.availableForBuy == true)
-            .toList();
-        /*      
-        log("forSellList :$forSellList");
-        log("forBuyList :$forBuyList");
-        */
+        initTable();
         update();
       }
     } on SocketException catch (_) {
-      log('not connected');
+      message(title: 'Connection', content: 'not connected');
       connectToNetwork = false.obs;
       update();
     }
   }
 
-  setAddress(String address) {
-    userAddress = address.obs;
-    update();
-  }
-
-  updateCurrencyChoice({required CurrencyModel currency, required int item}) {
+  updateCurrencyChoice(
+      {required CurrencyModel currency,
+      var isForReverse = false,
+      required int item}) {
     if (item == 1) {
       destinationCurrency = currency;
-      validation(
-          currencyForBuy: destinationCurrency, currencyForSell: sourceCurrency);
+      updateExchange(
+          destination: destinationCurrency,
+          source: sourceCurrency,
+          isForReverse: isForReverse);
     } else {
       sourceCurrency = currency;
-      validation(
-          currencyForBuy: destinationCurrency, currencyForSell: sourceCurrency);
+      updateExchange(destination: destinationCurrency, source: sourceCurrency);
     }
     update();
   }
 
-  cahngeSearchController(int index) {
-    searchController = index.obs;
+  updateSearchItem(int index) {
+    searchItem = index.obs;
     update();
   }
 
-  getCurrentTopItem(int index) {
-    currentTopItem = index.obs;
-    update();
-  }
-
-  RxBool isScreenChange = false.obs;
-  changeScreen() {
-    isScreenChange = isScreenChange.value ? false.obs : true.obs;
-    update();
-    message(title: 'is screen Change', content: isScreenChange.value);
-  }
-
-  changeReversed() {
+// updateReversed update '''fix''' value.
+  updateReversed() {
     isReversed = isReversed.value ? false.obs : true.obs;
+    if (isReversed.value) {
+      updateExchange(source: destinationCurrency, destination: sourceCurrency);
+    } else {
+      updateExchange(source: sourceCurrency, destination: destinationCurrency);
+    }
     update();
     message(title: 'is reversed', content: isReversed.value);
   }
 
-// for dispaly lock icon (fix) or not
+  initTable() async {
+    var initTableData = await InitTableApi().initTable();
+    estimate = initTableData!['estimate'] ?? [];
+    sourceAmount = estimate!.sourceAmount!.obs;
+    sourceTextController.text = sourceAmount.toString();
+    destinationAmount = estimate!.destinationAmount!.obs;
+    destinationTextController.text = destinationAmount.toString();
+    // get currency list
+    currencyList = initTableData['list'] ?? {};
+    sourceCurrency = currencyList!
+        .where((item) => item.engName!.toLowerCase() == 'bitcoin')
+        .first;
+    log("sourceCurrency is ${sourceCurrency!.engName} .");
+
+    destinationCurrency = currencyList!
+        .where((item) => item.engName!.toLowerCase() == 'ethereum')
+        .first;
+    log("destinationCurrency is ${destinationCurrency!.engName} .");
+
+    // Source currency will be selected from "forSellList".
+    forSellList =
+        currencyList!.where((item) => item.availableForSell == true).toList();
+
+    // Destination currency  will be selected from "forBuyList".
+    forBuyList =
+        currencyList!.where((item) => item.availableForBuy == true).toList();
+    update();
+  }
+
+  _pairBeVaild(
+      {var currencyForBuy,
+      var currencyForSell,
+      var isForReverse = false}) async {
+    tempType = isFixed.value ? "fix".obs : "not-fix".obs;
+    pairBeValid = await CheckPairBeVaildApi().getPairBeVaild(
+      type: tempType.toString(),
+      sourceNetwork: currencyForSell!.inNetwork,
+      sourceCurrency: currencyForSell.symbol,
+      destinationNetwork: currencyForBuy!.inNetwork,
+      destinationCurrency: currencyForBuy.symbol,
+    );
+    message(title: 'pair be vaild ', content: pairBeValid!);
+
+    if (pairBeValid!.type!['fix'] && pairBeValid!.type!['not-fix']) {
+      _exchangeRate(
+          isForReverse: isForReverse,
+          currencyForSell: currencyForSell,
+          currencyForBuy: currencyForBuy,
+          type: tempType.value);
+    } else if (!pairBeValid!.type!['fix'] && pairBeValid!.type!['not-fix']) {
+      _exchangeRate(
+          currencyForSell: currencyForSell,
+          currencyForBuy: currencyForBuy,
+          type: "not-fix");
+    } else {
+      Get.snackbar('توجه!', "این جفت ارز با هم قابل مبادله نیستند");
+    }
+
+    update();
+  }
+
+  _exchangeRate(
+      {var currencyForSell,
+      var currencyForBuy,
+      var type,
+      var isForReverse = false}) async {
+    if (isForReverse) {
+      exchangeRate = await GetExchangeRateApi().getExchangeRate(
+        type: type,
+        isForReverse: isForReverse,
+        sourceNetwork: currencyForBuy.inNetwork,
+        sourceCurrency: currencyForBuy.symbol,
+        destinationNetwork: currencyForSell.inNetwork,
+        destinationCurrency: currencyForSell.symbol,
+      );
+    } else {
+      exchangeRate = await GetExchangeRateApi().getExchangeRate(
+        type: type,
+        sourceNetwork: currencyForSell.inNetwork,
+        sourceCurrency: currencyForSell.symbol,
+        destinationNetwork: currencyForBuy.inNetwork,
+        destinationCurrency: currencyForBuy.symbol,
+      );
+    }
+
+    minimumExchangeAmount = exchangeRate!.minimumExchangeAmount!.obs;
+    maximumExchangeAmount = double.parse(
+            exchangeRate!.maximumExchangeAmount! == ''
+                ? '0'
+                : exchangeRate!.maximumExchangeAmount!)
+        .obs;
+
+    message(title: 'get exchange rate ', content: exchangeRate);
+    double amount = 0;
+
+    amount = isForReverse
+        ? double.parse(destinationTextController.text)
+        : double.parse(sourceTextController.text);
+    if (amount < minimumExchangeAmount.value) {
+      Get.defaultDialog(
+          title: 'توجه!',
+          content: const Text('مقدار وارد شده کمتر از مقدار مجاز میباشد.'));
+      destinationTextController.text = '';
+    }
+    /* else if (amount > maximumExchangeAmount.value) {
+      Get.defaultDialog(
+          title: 'توجه!',
+          content: const Text('مقدار وارد شده بیشتر از مقدار مجاز میباشد.'));
+    } */
+    else {
+      _estimateAmount(
+          currencyForSell: currencyForSell,
+          currencyForBuy: currencyForBuy,
+          type: type,
+          amount: amount,
+          isForReverse: isForReverse,
+          directionOfExchangeFlow: isForReverse ? 'reverse' : 'direct');
+    }
+    update();
+  }
+
+  _estimateAmount(
+      {var currencyForSell,
+      var currencyForBuy,
+      String directionOfExchangeFlow = 'direct',
+      double amount = 0,
+      bool isForReverse = false,
+      String type = "not-fix"}) async {
+    if (isForReverse) {
+      log('here dasf');
+
+      estimateAmount = await EstimateExchangeAmountApi().getAmount(
+        type: type,
+        sourceNetwork: currencyForSell.inNetwork,
+        sourceCurrency: currencyForSell.symbol,
+        destinationNetwork: currencyForBuy.inNetwork,
+        destinationCurrency: currencyForBuy.symbol,
+        directionOfExchangeFlow: directionOfExchangeFlow,
+        destinationAmount: amount,
+      );
+    } else {
+      estimateAmount = await EstimateExchangeAmountApi().getAmount(
+        type: type,
+        sourceNetwork: currencyForSell.inNetwork,
+        sourceCurrency: currencyForSell.symbol,
+        destinationNetwork: currencyForBuy.inNetwork,
+        destinationCurrency: currencyForBuy.symbol,
+        directionOfExchangeFlow: directionOfExchangeFlow,
+        sourceAmount: amount,
+      );
+    }
+
+    sourceAmount = estimateAmount!.sourceAmount!.obs;
+    sourceTextController.text = sourceAmount.toString();
+    destinationAmount = estimateAmount!.destinationAmount!.obs;
+    destinationTextController.text = destinationAmount.toString();
+
+    message(title: 'forSellAmount :', content: sourceAmount);
+    message(
+        title: 'estimate amount :', content: estimateAmount!.destinationAmount);
+    update();
+  }
+
+  updateExchange({var source, var destination, var isForReverse = false}) {
+    _pairBeVaild(
+        currencyForSell: source,
+        currencyForBuy: destination,
+        isForReverse: isForReverse);
+    update();
+  }
+
+  updateList() async {
+    var currencyList2 = await CurrencyListApi().getList();
+
+    sourceCurrency = currencyList!
+        .where((item) => item.engName!.toLowerCase() == 'bitcoin')
+        .first;
+    log("sourceCurrency is ${sourceCurrency!.engName} .");
+
+    destinationCurrency = currencyList!
+        .where((item) => item.engName!.toLowerCase() == 'ethereum')
+        .first;
+    log("destinationCurrency is ${destinationCurrency!.engName} .");
+
+    // Source currency will be selected from "forSellList".
+    forSellList =
+        currencyList!.where((item) => item.availableForSell == true).toList();
+
+    // Destination currency  will be selected from "forBuyList".
+    forBuyList =
+        currencyList!.where((item) => item.availableForBuy == true).toList();
+    update();
+  }
+
+// for dispaly lock icon (fix) or not.
   updateFix() {
     isFixed = isFixed.value ? false.obs : true.obs;
     update();

@@ -7,13 +7,13 @@ import '../../backend/models/get_exchange_rate_model.dart';
 import '../network_constants.dart';
 
 class GetExchangeRateApi {
-  Future<GetExchangeRateModel?> getExchangeRate({
-    String? sourceCurrency,
-    String? destinationCurrency,
-    String? type,
-    String? sourceNetwork,
-    String? destinationNetwork,
-  }) async {
+  Future<GetExchangeRateModel?> getExchangeRate(
+      {String? sourceCurrency,
+      String? destinationCurrency,
+      String? type,
+      String? sourceNetwork,
+      String? destinationNetwork,
+      bool isForReverse = false}) async {
     http.Response response = await http.post(
         Uri.parse(baseUrl + getExchangeRateEndpoint),
         body: json.encode({
@@ -21,7 +21,8 @@ class GetExchangeRateApi {
           "destinationCurrency": destinationCurrency,
           "type": type,
           "sourceNetwork": sourceNetwork,
-          "destinationNetwork": destinationNetwork
+          "destinationNetwork": destinationNetwork,
+          "isForReverse": isForReverse
         }),
         headers: {
           'x-changenow-api-key': '{{free-api-key}}',
@@ -37,5 +38,6 @@ class GetExchangeRateApi {
     } else {
       log("${response.statusCode}");
     }
+    return null;
   }
 }

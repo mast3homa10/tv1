@@ -12,6 +12,13 @@ import '../steps/steps_page_controller.dart';
 import '../../../enums.dart';
 
 class AddressPageController extends GetxController {
+  var currentTopItem = 0.obs;
+
+  getCurrentTopItem(int index) {
+    currentTopItem = index.obs;
+    update();
+  }
+
   var isSupportAddressMustBeEmpty = false.obs;
   setSupportAddress() => isSupportAddressMustBeEmpty = true.obs;
 

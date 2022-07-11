@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:tv1/frontend/pages/address_page.dart/address_page_controller.dart';
 import '../../../frontend/components/nav_bar/second_nav_bar.dart';
-import '../exchange/exchange_page_controller.dart';
 
 import '../../../constants.dart';
 import 'sub_screen/add_address_screen.dart';
@@ -20,7 +20,7 @@ class AddressPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<ExchangePageController>(builder: (controller) {
+    return GetBuilder<AddressPageController>(builder: (controller) {
       return Scaffold(
         resizeToAvoidBottomInset: false,
         appBar: kAppbar,
