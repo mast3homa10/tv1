@@ -4,7 +4,6 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
-import 'package:tv1/backend/api/currency_list_api.dart';
 
 import '../../../backend/api/init_table.dart';
 import '../../../backend/api/get_exchange_rate.dart';
@@ -24,7 +23,7 @@ class ExchangePageController extends GetxController {
   var supportAddress = ''.obs;
 
   RxBool connectToNetwork = false.obs;
-  RxBool isFixed = false.obs;
+  RxBool isFixedPressed = false.obs;
   RxBool isReversed = false.obs;
   var searchItem = 0.obs;
 
@@ -41,7 +40,7 @@ class ExchangePageController extends GetxController {
   GetExchangeRateModel? exchangeRate;
   InitTabelModel? estimate;
   EstimateExchangeAmountModel? estimateAmount;
-  var tempType = ''.obs;
+  var pairBeValidType = ''.obs;
 
   @override
   void onInit() {
@@ -78,7 +77,7 @@ class ExchangePageController extends GetxController {
     update();
   }
 
-  //check connection to network
+  //check connection to network with "checkConnection" function.
   checkConnection() async {
     try {
       final result = await InternetAddress.lookup('example.com');
@@ -86,7 +85,7 @@ class ExchangePageController extends GetxController {
         message(title: 'Connection', content: 'connected');
         connectToNetwork = true.obs;
         //get init table
-        initTable();
+        _initTable();
         update();
       }
     } on SocketException catch (_) {
@@ -118,7 +117,7 @@ class ExchangePageController extends GetxController {
     update();
   }
 
-// updateReversed update '''fix''' value.
+// "updateReversed" change source with destination currency.
   updateReversed() {
     isReversed = isReversed.value ? false.obs : true.obs;
     if (isReversed.value) {
@@ -130,15 +129,17 @@ class ExchangePageController extends GetxController {
     message(title: 'is reversed', content: isReversed.value);
   }
 
-  initTable() async {
+// "_initTable" is for get currency list and default currecnys (estimate)
+  _initTable() async {
     var initTableData = await InitTableApi().initTable();
     estimate = initTableData!['estimate'] ?? [];
     sourceAmount = estimate!.sourceAmount!.obs;
     sourceTextController.text = sourceAmount.toString();
     destinationAmount = estimate!.destinationAmount!.obs;
     destinationTextController.text = destinationAmount.toString();
-    // get currency list
+    // save currencys in "currnecylist".
     currencyList = initTableData['list'] ?? {};
+    //get default "source" & "destination" currencys.
     sourceCurrency = currencyList!
         .where((item) => item.engName!.toLowerCase() == 'bitcoin')
         .first;
@@ -149,6 +150,7 @@ class ExchangePageController extends GetxController {
         .first;
     log("destinationCurrency is ${destinationCurrency!.engName} .");
 
+    // divide [currencyList] to 2 sub lists : "forSellList" ,"forBuyList"
     // Source currency will be selected from "forSellList".
     forSellList =
         currencyList!.where((item) => item.availableForSell == true).toList();
@@ -163,29 +165,55 @@ class ExchangePageController extends GetxController {
       {var currencyForBuy,
       var currencyForSell,
       var isForReverse = false}) async {
-    tempType = isFixed.value ? "fix".obs : "not-fix".obs;
     pairBeValid = await CheckPairBeVaildApi().getPairBeVaild(
-      type: tempType.toString(),
+      type: isFixedPressed.value ? "fix" : "not-fix",
       sourceNetwork: currencyForSell!.inNetwork,
       sourceCurrency: currencyForSell.symbol,
       destinationNetwork: currencyForBuy!.inNetwork,
       destinationCurrency: currencyForBuy.symbol,
     );
+    bool isFixed = pairBeValid!.type!['fix'];
+    log('is fix : $isFixed');
     message(title: 'pair be vaild ', content: pairBeValid!);
 
-    if (pairBeValid!.type!['fix'] && pairBeValid!.type!['not-fix']) {
-      _exchangeRate(
-          isForReverse: isForReverse,
-          currencyForSell: currencyForSell,
-          currencyForBuy: currencyForBuy,
-          type: tempType.value);
-    } else if (!pairBeValid!.type!['fix'] && pairBeValid!.type!['not-fix']) {
-      _exchangeRate(
-          currencyForSell: currencyForSell,
-          currencyForBuy: currencyForBuy,
-          type: "not-fix");
+    if (!pairBeValid!.type!['fix'] && !pairBeValid!.type!['not-fix']) {
+      Get.defaultDialog(
+        title: "توجه!",
+        content: const Text(
+          "این جفت ارز با هم قابل مبادله نیستند",
+        ),
+      );
     } else {
-      Get.snackbar('توجه!', "این جفت ارز با هم قابل مبادله نیستند");
+      if (!pairBeValid!.type!['fix'] && pairBeValid!.type!['not-fix']) {
+        if (isFixedPressed.value) {
+          Get.defaultDialog(
+            title: "توجه!",
+            content: const Text(
+              'جفت ارز انتخابی قابلیت استفاده از نرخ ثابت را ندارند',
+            ),
+          );
+          isFixedPressed = false.obs;
+          update();
+        } else {
+          _exchangeRate(
+              currencyForSell: currencyForSell,
+              currencyForBuy: currencyForBuy,
+              type: "not-fix");
+        }
+      } else {
+        if (isFixedPressed.value || isForReverse && isFixed) {
+          _exchangeRate(
+              isForReverse: isForReverse,
+              currencyForSell: currencyForSell,
+              currencyForBuy: currencyForBuy,
+              type: 'fix');
+        } else {
+          _exchangeRate(
+              currencyForSell: currencyForSell,
+              currencyForBuy: currencyForBuy,
+              type: 'not-fix');
+        }
+      }
     }
 
     update();
@@ -197,14 +225,24 @@ class ExchangePageController extends GetxController {
       var type,
       var isForReverse = false}) async {
     if (isForReverse) {
-      exchangeRate = await GetExchangeRateApi().getExchangeRate(
-        type: 'fix',
-        isForReverse: isForReverse,
-        sourceNetwork: currencyForBuy.inNetwork,
-        sourceCurrency: currencyForBuy.symbol,
-        destinationNetwork: currencyForSell.inNetwork,
-        destinationCurrency: currencyForSell.symbol,
-      );
+      if (!currencyForBuy.availableForSell ||
+          !currencyForSell.availableForBuy) {
+        Get.defaultDialog(
+            title: 'توجه!',
+            content: const Text('امکان فروش برای ارزهای مورد نظر ممکن نیست'));
+        return;
+      } else {
+        isFixedPressed = true.obs;
+        update();
+        exchangeRate = await GetExchangeRateApi().getExchangeRate(
+          type: type,
+          isForReverse: isForReverse,
+          sourceNetwork: currencyForBuy.inNetwork,
+          sourceCurrency: currencyForBuy.symbol,
+          destinationNetwork: currencyForSell.inNetwork,
+          destinationCurrency: currencyForSell.symbol,
+        );
+      }
     } else {
       exchangeRate = await GetExchangeRateApi().getExchangeRate(
         type: type,
@@ -311,37 +349,53 @@ class ExchangePageController extends GetxController {
     update();
   }
 
-  updateList() async {
-    var currencyList2 = await CurrencyListApi().getList();
-
-    sourceCurrency = currencyList!
-        .where((item) => item.engName!.toLowerCase() == 'bitcoin')
-        .first;
-    log("sourceCurrency is ${sourceCurrency!.engName} .");
-
-    destinationCurrency = currencyList!
-        .where((item) => item.engName!.toLowerCase() == 'ethereum')
-        .first;
-    log("destinationCurrency is ${destinationCurrency!.engName} .");
-
-    // Source currency will be selected from "forSellList".
-    forSellList =
-        currencyList!.where((item) => item.availableForSell == true).toList();
-
-    // Destination currency  will be selected from "forBuyList".
-    forBuyList =
-        currencyList!.where((item) => item.availableForBuy == true).toList();
-    update();
-  }
-
 // for dispaly lock icon (fix) or not.
   updateFix() {
-    isFixed = isFixed.value ? false.obs : true.obs;
+    isFixedPressed = isFixedPressed.value ? false.obs : true.obs;
     update();
-    message(title: 'is Icon Change', content: isFixed.value);
+    message(title: 'is Icon Change', content: isFixedPressed.value);
   }
 
   message({String title = '', var content}) {
     log('$title : $content');
   }
 }
+
+/*   if (pairBeValid!.type!['fix'] && pairBeValid!.type!['not-fix']) {
+      if (isFixed.value) {
+        _exchangeRate(
+            isForReverse: isForReverse,
+            currencyForSell: currencyForSell,
+            currencyForBuy: currencyForBuy,
+            type: 'fix');
+      } else {
+        _exchangeRate(
+            isForReverse: isForReverse,
+            currencyForSell: currencyForSell,
+            currencyForBuy: currencyForBuy,
+            type: 'not_fix');
+      }
+    } else if (!pairBeValid!.type!['fix'] && pairBeValid!.type!['not-fix']) {
+      if (isFixed.value) {
+        Get.defaultDialog(
+          title: "توجه!",
+          content: const Text(
+            'جفت ارز انتخابی قابلیت استفاده از نرخ ثابت را ندارند',
+          ),
+        );
+        isFixed = false.obs;
+        update();
+      } else {
+        _exchangeRate(
+            currencyForSell: currencyForSell,
+            currencyForBuy: currencyForBuy,
+            type: "not-fix");
+      }
+    } else {
+      Get.defaultDialog(
+        title: "توجه!",
+        content: const Text(
+          "این جفت ارز با هم قابل مبادله نیستند",
+        ),
+      );
+    } */

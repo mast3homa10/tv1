@@ -57,7 +57,7 @@ class EstimateExchangeAmountApi {
       } else {
         log("/////////////////////////////");
         log("${response.statusCode}");
-        var error = json.decode(response.body)['errors'];
+        var error = json.decode(response.body);
         log('Error :$error');
 
         return null;

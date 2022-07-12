@@ -259,7 +259,7 @@ class ExchangeBox extends StatelessWidget {
           return isIconChange
               ? Column(
                   children: [
-                    if (controller.isFixed.value && boxId == 1)
+                    if (controller.isFixedPressed.value && boxId == 1)
                       CustomTimer(
                         maxSecond: 120,
                         controller: timerController,

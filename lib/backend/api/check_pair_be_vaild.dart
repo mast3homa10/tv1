@@ -36,7 +36,11 @@ class CheckPairBeVaildApi {
 
         return decodedData;
       } else {
+        log("/////////////////////////////");
         log("${response.statusCode}");
+        var error = json.decode(response.body);
+        log('Error :$error');
+
         return null;
       }
     } catch (e) {

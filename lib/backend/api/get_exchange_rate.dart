@@ -36,8 +36,11 @@ class GetExchangeRateApi {
       var decodedData = GetExchangeRateModel.fromJson(data);
       return decodedData;
     } else {
+      log("/////////////////////////////");
       log("${response.statusCode}");
+      var error = json.decode(response.body);
+      log('Error :$error');
+      return null;
     }
-    return null;
   }
 }

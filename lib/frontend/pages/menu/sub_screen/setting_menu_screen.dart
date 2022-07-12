@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../../../frontend/components/custom_menu_item.dart';
-import '../../../../frontend/components/toggle_switch_button.dart';
 
 class SettingMenuScreen extends StatelessWidget {
   SettingMenuScreen({
@@ -14,27 +13,24 @@ class SettingMenuScreen extends StatelessWidget {
     CustomMenuItem(
       label: 'نوتیفیکیشن ها',
       icon: FontAwesomeIcons.bell,
-      buildSubScreen: Row(children: [
-        const Text(
+      buildSubScreen: SwitchListTile(
+        value: false,
+        onChanged: (_) {},
+        title: const Text(
           'اجاره دادن به نوتیفیکیشن',
         ),
-        const ToggleSwitchButton(),
-        ToggleButtons(
-          isSelected: const [
-            true,
-            false,
-          ],
-          children: const [
-            Text('data'),
-            Text('data'),
-          ],
-        ),
-      ]),
+      ),
     ),
-    const CustomMenuItem(
+    CustomMenuItem(
       label: 'رمز عبور',
       icon: FontAwesomeIcons.lock,
-      buildSubScreen: Text(''),
+      buildSubScreen: SwitchListTile(
+        value: false,
+        onChanged: (_) {},
+        title: const Text(
+          'رمز عبور',
+        ),
+      ),
     ),
   ];
 

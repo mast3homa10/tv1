@@ -85,7 +85,8 @@ class ExchangePage extends StatelessWidget {
                                       currentBox: 1,
                                     ));
                               },
-                              isIconChange: exchangeController.isFixed.value,
+                              isIconChange:
+                                  exchangeController.isFixedPressed.value,
                               openIconPressed: () {
                                 buildSnakBar(context);
                                 exchangeController.updateFix();

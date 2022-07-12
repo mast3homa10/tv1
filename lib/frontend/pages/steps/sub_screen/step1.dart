@@ -73,7 +73,7 @@ class _Step1State extends State<Step1> {
                 color: Theme.of(context).appBarTheme.backgroundColor),
             child: Column(
               children: [
-                if (exchangeController.isFixed.value)
+                if (exchangeController.isFixedPressed.value)
                   Column(
                     children: [
                       Text(

@@ -48,7 +48,7 @@ class _ToggleSwitchButtonState extends State<ToggleSwitchButton> {
           ),
         ],
         onChanged: (b) {
-          if (exchangeController.isFixed.value) {
+          if (exchangeController.isFixedPressed.value) {
             Get.snackbar(
                 'توجه!', "تا زمان اتمام تایمر امکان تغییر تم وجود ندارد");
           } else {

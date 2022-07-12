@@ -22,7 +22,10 @@ class CurrencyListApi {
         list = data.map((item) => CurrencyModel.fromJson(item)).toList();
         return list;
       } else {
+        log("/////////////////////////////");
         log("${response.statusCode}");
+        var error = json.decode(response.body);
+        log('Error :$error');
         return null;
       }
     } catch (e) {
