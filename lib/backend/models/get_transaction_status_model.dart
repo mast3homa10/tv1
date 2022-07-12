@@ -58,37 +58,36 @@ class GetTransactionStatusModel {
       this.txStatus,
       this.updatedAt});
 
-  GetTransactionStatusModel.fromJson(json) {
-    actionsAvailable = json['actionsAvailable'];
-    amountFromSource = json['amountFromSource'];
-    amountToDestination = json['amountToDestination'];
-    createdAt = json['createdAt'];
-    depositReceivedDate = json['depositReceivedDate'];
-    destinationCurrency = json['destinationCurrency'];
-    destinationCurrencyFaName = json['destinationCurrencyFaName'];
-    destinationCurrencyImage = json['destinationCurrencyImage'];
-    destinationNetwork = json['destinationNetwork'];
-    expectedAmountFromSource = json['expectedAmountFromSource'];
-    expectedAmountToDestination = json['expectedAmountToDestination'];
-    fromLegacyTicker = json['fromLegacyTicker'];
-    payinAddress = json['payinAddress'];
-    payinExtraId = json['payinExtraId'];
-    payinHash = json['payinHash'];
-    payoutAddress = json['payoutAddress'];
-    payoutExtraId = json['payoutExtraId'];
-    payoutHash = json['payoutHash'];
-    refundAddress = json['refundAddress'];
-    refundExtraId = json['refundExtraId'];
-    sourceCurrency = json['sourceCurrency'];
-    sourceCurrencyFaName = json['sourceCurrencyFaName'];
-    sourceCurrencyImage = json['sourceCurrencyImage'];
-    sourceNetwork = json['sourceNetwork'];
-    toLegacyTicker = json['toLegacyTicker'];
-    txId = json['txId'];
-    txStatus = json['txStatus'];
-    updatedAt = json['updatedAt'];
-  }
+  GetTransactionStatusModel.fromJson(json)
+      : actionsAvailable = json['actionsAvailable'],
+        amountFromSource = json['amountFromSource'],
+        amountToDestination = json['amountToDestination'],
+        createdAt = json['createdAt'],
+        depositReceivedDate = json['depositReceivedDate'],
+        destinationCurrency = json['destinationCurrency'],
+        destinationCurrencyFaName = json['destinationCurrencyFaName'],
+        destinationCurrencyImage = json['destinationCurrencyImage'],
+        destinationNetwork = json['destinationNetwork'],
+        expectedAmountFromSource = json['expectedAmountFromSource'],
+        expectedAmountToDestination = json['expectedAmountToDestination'],
+        fromLegacyTicker = json['fromLegacyTicker'],
+        payinAddress = json['payinAddress'],
+        payinExtraId = json['payinExtraId'],
+        payinHash = json['payinHash'],
+        payoutAddress = json['payoutAddress'],
+        payoutExtraId = json['payoutExtraId'],
+        payoutHash = json['payoutHash'],
+        refundAddress = json['refundAddress'],
+        refundExtraId = json['refundExtraId'],
+        sourceCurrency = json['sourceCurrency'],
+        sourceCurrencyFaName = json['sourceCurrencyFaName'],
+        sourceCurrencyImage = json['sourceCurrencyImage'],
+        sourceNetwork = json['sourceNetwork'],
+        toLegacyTicker = json['toLegacyTicker'],
+        txId = json['txId'],
+        txStatus = json['txStatus'],
+        updatedAt = json['updatedAt'];
 
   @override
-  toString() => "\n {txId: $txId}, {txStatus: $txStatus ...},";
+  toString() => "\n{{txId: $txId}, {txStatus: $txStatus}, ...},";
 }

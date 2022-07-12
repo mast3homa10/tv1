@@ -25,7 +25,7 @@ class CreateTransactionApi {
       Map<String, dynamic> data =
           json.decode(response.body)['data']['createExchangeResult'];
 
-      var decodedData = CreateTransactionModel().fromJson(data);
+      var decodedData = CreateTransactionModel.fromJson(data);
 
       log('$decodedData');
       return decodedData;

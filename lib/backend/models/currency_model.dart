@@ -38,7 +38,7 @@ class CurrencyModel {
 
   @override
   toString() =>
-      "\n {symbol: $symbol}, {engName: $engName}, {faName: $faName} ...";
+      "\n{{symbol: $symbol}, {engName: $engName}, {faName: $faName} ...}";
 }
 
 List<CurrencyModel> dataList = [

@@ -52,7 +52,7 @@ class ExchangePageController extends GetxController {
   late Timer sendOnStoppedTyping = Timer(const Duration(milliseconds: 800),
       () => log('request on stopped typing'));
 
-// use '''onChangeHandler''' to send request after stop typing
+// use ""firstOnChange"" & ""secondOnChange"" to send request after stop typing
   firstOnChange(value) {
     const duration = Duration(milliseconds: 600);
     sendOnStoppedTyping.cancel();
@@ -62,14 +62,11 @@ class ExchangePageController extends GetxController {
               source: sourceCurrency,
               destination: destinationCurrency,
             ));
-
-    // () => updateExchange(
-    // source: sourceCurrency, destination: destinationCurrency));
     update();
   }
 
   secondOnChange(value) {
-    const duration = Duration(milliseconds: 800);
+    const duration = Duration(milliseconds: 600);
     sendOnStoppedTyping.cancel();
     sendOnStoppedTyping = Timer(
         duration,
@@ -201,7 +198,7 @@ class ExchangePageController extends GetxController {
       var isForReverse = false}) async {
     if (isForReverse) {
       exchangeRate = await GetExchangeRateApi().getExchangeRate(
-        type: type,
+        type: 'fix',
         isForReverse: isForReverse,
         sourceNetwork: currencyForBuy.inNetwork,
         sourceCurrency: currencyForBuy.symbol,
@@ -217,7 +214,6 @@ class ExchangePageController extends GetxController {
         destinationCurrency: currencyForBuy.symbol,
       );
     }
-
     minimumExchangeAmount = exchangeRate!.minimumExchangeAmount!.obs;
     maximumExchangeAmount = double.parse(
             exchangeRate!.maximumExchangeAmount! == ''
@@ -234,22 +230,33 @@ class ExchangePageController extends GetxController {
     if (amount < minimumExchangeAmount.value) {
       Get.defaultDialog(
           title: 'توجه!',
-          content: const Text('مقدار وارد شده کمتر از مقدار مجاز میباشد.'));
+          content: Text('مقدار وارد شده کمتر از مقدار مجاز میباشد.'
+              '\nکمترین مقدار مجاز : ${minimumExchangeAmount.value}'));
       destinationTextController.text = '';
-    }
-    /* else if (amount > maximumExchangeAmount.value) {
+    } else if (amount > maximumExchangeAmount.value &&
+        maximumExchangeAmount.value > 0) {
       Get.defaultDialog(
           title: 'توجه!',
-          content: const Text('مقدار وارد شده بیشتر از مقدار مجاز میباشد.'));
-    } */
-    else {
-      _estimateAmount(
-          currencyForSell: currencyForSell,
-          currencyForBuy: currencyForBuy,
-          type: type,
-          amount: amount,
-          isForReverse: isForReverse,
-          directionOfExchangeFlow: isForReverse ? 'reverse' : 'direct');
+          content: Text('مقدار وارد شده بیشتر از مقدار مجاز میباشد.'
+              '\nبیشترین مقدار مجاز : ${maximumExchangeAmount.value}'));
+    } else {
+      if (isForReverse) {
+        _estimateAmount(
+            currencyForSell: currencyForSell,
+            currencyForBuy: currencyForBuy,
+            type: 'fix',
+            amount: amount,
+            isForReverse: isForReverse,
+            directionOfExchangeFlow: 'reverse');
+      } else {
+        _estimateAmount(
+            currencyForSell: currencyForSell,
+            currencyForBuy: currencyForBuy,
+            type: type,
+            amount: amount,
+            isForReverse: isForReverse,
+            directionOfExchangeFlow: 'direct');
+      }
     }
     update();
   }
@@ -262,9 +269,8 @@ class ExchangePageController extends GetxController {
       bool isForReverse = false,
       String type = "not-fix"}) async {
     if (isForReverse) {
-      log('here dasf');
-
       estimateAmount = await EstimateExchangeAmountApi().getAmount(
+        isForReverse: isForReverse,
         type: type,
         sourceNetwork: currencyForSell.inNetwork,
         sourceCurrency: currencyForSell.symbol,
@@ -284,6 +290,7 @@ class ExchangePageController extends GetxController {
         sourceAmount: amount,
       );
     }
+    message(title: 'Estimate amount', content: estimateAmount);
 
     sourceAmount = estimateAmount!.sourceAmount!.obs;
     sourceTextController.text = sourceAmount.toString();

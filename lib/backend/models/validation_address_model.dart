@@ -12,5 +12,5 @@ class ValidationAddressModel {
         message = json['message'];
 
   @override
-  toString() => "\n {isValid: $isValid }{message: $message ...},,";
+  toString() => "\n{isValid: $isValid }, {message: $message ...},";
 }

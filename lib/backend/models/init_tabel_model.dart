@@ -41,5 +41,5 @@ class InitTabelModel {
 
   @override
   toString() =>
-      "\n {sourceAmount: $sourceAmount}, {destinationAmount: $destinationAmount ...},";
+      "\n{{sourceAmount: $sourceAmount}, {destinationAmount: $destinationAmount}, ...},";
 }

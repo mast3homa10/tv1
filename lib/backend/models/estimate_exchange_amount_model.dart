@@ -27,22 +27,22 @@ class EstimateExchangeAmountModel {
     this.validUntil = 'test',
   });
 
-  EstimateExchangeAmountModel fromJson(json) => EstimateExchangeAmountModel(
-        destinationAmount: json['destinationAmount'],
-        destinationCurrency: json['destinationCurrency'],
-        destinationNetwork: json['destinationNetwork'],
-        directionOfExchangeFlow: json['directionOfExchangeFlow'],
-        rateId: json['rateId'],
-        sourceAmount: json['sourceAmount'],
-        sourceCurrency: json['sourceCurrency'],
-        sourceNetwork: json['sourceNetwork'],
-        type: json['type'],
-        message: json['message'],
-        minAndMaxEstimatedTime: json['minAndMaxEstimatedTime'],
-        validUntil: json['validUntil'],
-      );
+  EstimateExchangeAmountModel.fromJson(json)
+      : destinationAmount = json['destinationAmount'],
+        destinationCurrency = json['destinationCurrency'],
+        destinationNetwork = json['destinationNetwork'],
+        directionOfExchangeFlow = json['directionOfExchangeFlow'],
+        rateId = json['rateId'],
+        sourceAmount = json['sourceAmount'],
+        sourceCurrency = json['sourceCurrency'],
+        sourceNetwork = json['sourceNetwork'],
+        type = json['type'],
+        message = json['message'],
+        minAndMaxEstimatedTime = json['minAndMaxEstimatedTime'],
+        validUntil = json['validUntil'];
 
   @override
-  toString() =>
-      "\n {rateId: $rateId}, {destinationAmount: $destinationAmount}, {destinationCurrency: $destinationCurrency ...}";
+  toString() => "\n{{rateId: $rateId},\n{sourceAmount: $sourceAmount},"
+      "\n{destinationAmount: $destinationAmount},\n{type: $type},"
+      "\n{directionOfExchangeFlow: $directionOfExchangeFlow},\n...}";
 }

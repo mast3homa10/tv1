@@ -20,16 +20,17 @@ class EstimateExchangeAmountApi {
     try {
       http.Response response;
       if (isForReverse) {
+        log('message');
         response =
             await http.post(Uri.parse(baseUrl + esimatExchangeAmountEndpoint),
                 body: json.encode({
-                  "sourceCurrency": sourceCurrency,
-                  "destinationCurrency": destinationCurrency,
-                  "type": type,
-                  "directionOfExchangeFlow": directionOfExchangeFlow,
-                  "sourceNetwork": sourceNetwork,
-                  "destinationNetwork": destinationNetwork,
                   "destinationAmount": destinationAmount,
+                  "destinationCurrency": destinationCurrency,
+                  "destinationNetwork": destinationNetwork,
+                  "directionOfExchangeFlow": "reverse",
+                  "sourceCurrency": sourceCurrency,
+                  "sourceNetwork": sourceNetwork,
+                  "type": "fix"
                 }),
                 headers: {'Content-Type': 'application/json'});
       } else {
@@ -51,11 +52,14 @@ class EstimateExchangeAmountApi {
         Map<String, dynamic> data =
             json.decode(response.body)['data']['estimateExchangeAmount'];
 
-        var decodedData = EstimateExchangeAmountModel().fromJson(data);
-        log('$decodedData');
+        var decodedData = EstimateExchangeAmountModel.fromJson(data);
         return decodedData;
       } else {
+        log("/////////////////////////////");
         log("${response.statusCode}");
+        var error = json.decode(response.body)['errors'];
+        log('Error :$error');
+
         return null;
       }
     } catch (e) {

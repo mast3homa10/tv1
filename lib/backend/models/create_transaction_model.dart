@@ -37,26 +37,26 @@ class CreateTransactionModel {
       this.sourceNetwork = 'test',
       this.type});
 
-  CreateTransactionModel fromJson(json) => CreateTransactionModel(
-      id: json['id'],
-      destinationAmount: json['destinationAmount'],
-      destinationCurrency: json['destinationCurrency'],
-      destinationNetwork: json['destinationNetwork'],
-      directionOfExchangeFlow: json['directionOfExchangeFlow'],
-      payinAddress: json['payinAddress'],
-      payinExtraId: json['payinExtraId'],
-      payoutAddress: json['payoutAddress'],
-      payoutExtraId: json['payoutExtraId'],
-      payoutExtraIdName: json['payoutExtraIdName'],
-      rateId: json['rateId'],
-      refundAddress: json['refundAddress'],
-      refundExtraId: json['refundExtraId'],
-      sourceAmount: json['sourceAmount'],
-      sourceCurrency: json['sourceCurrency'],
-      sourceNetwork: json['sourceNetwork'],
-      type: json['type']);
+  CreateTransactionModel.fromJson(json)
+      : id = json['id'],
+        destinationAmount = json['destinationAmount'],
+        destinationCurrency = json['destinationCurrency'],
+        destinationNetwork = json['destinationNetwork'],
+        directionOfExchangeFlow = json['directionOfExchangeFlow'],
+        payinAddress = json['payinAddress'],
+        payinExtraId = json['payinExtraId'],
+        payoutAddress = json['payoutAddress'],
+        payoutExtraId = json['payoutExtraId'],
+        payoutExtraIdName = json['payoutExtraIdName'],
+        rateId = json['rateId'],
+        refundAddress = json['refundAddress'],
+        refundExtraId = json['refundExtraId'],
+        sourceAmount = json['sourceAmount'],
+        sourceCurrency = json['sourceCurrency'],
+        sourceNetwork = json['sourceNetwork'],
+        type = json['type'];
 
   @override
   toString() =>
-      "\n {id: $id}, {destinationAmount: $destinationAmount}, {destinationCurrency: $destinationCurrency ...}";
+      "\n{{id: $id},\n{destinationAmount: $destinationAmount},\n{destinationCurrency: $destinationCurrency},\n ...}";
 }

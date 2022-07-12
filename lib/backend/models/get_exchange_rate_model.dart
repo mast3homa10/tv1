@@ -17,17 +17,16 @@ class GetExchangeRateModel {
     this.type = 'test',
   });
 
-  GetExchangeRateModel.fromJson(json) {
-    destinationCurrency = json['destinationCurrency'];
-    destinationNetwork = json['destinationNetwork'];
-    sourceCurrency = json['sourceCurrency'];
-    sourceNetwork = json['sourceNetwork'];
-    type = json['type'];
-    maximumExchangeAmount = json['maximumExchangeAmount'].toString();
-    minimumExchangeAmount = json['minimumExchangeAmount'];
-  }
+  GetExchangeRateModel.fromJson(json)
+      : destinationCurrency = json['destinationCurrency'],
+        destinationNetwork = json['destinationNetwork'],
+        sourceCurrency = json['sourceCurrency'],
+        sourceNetwork = json['sourceNetwork'],
+        type = json['type'],
+        maximumExchangeAmount = json['maximumExchangeAmount'].toString(),
+        minimumExchangeAmount = json['minimumExchangeAmount'];
 
   @override
   toString() =>
-      "{minimumExchangeAmount: $minimumExchangeAmount},\n{maximumExchangeAmount: $maximumExchangeAmount},\n{type: $type ...},";
+      "\n{{minimumExchangeAmount: $minimumExchangeAmount},\n{maximumExchangeAmount: $maximumExchangeAmount},\n{type: $type},\n ...},";
 }
