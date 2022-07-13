@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:persian_number_utility/persian_number_utility.dart';
 
 import 'frontend/components/toggle_switch_button.dart';
 
@@ -50,3 +51,8 @@ AppBar kAppbar = AppBar(
     ToggleSwitchButton(),
   ],
 );
+
+String kPersianDigit(var digit) {
+  String num = digit.toString();
+  return num.toPersianDigit();
+}

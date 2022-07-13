@@ -4,6 +4,8 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
+import 'package:persian_number_utility/persian_number_utility.dart';
+import 'package:tv1/constants.dart';
 
 import '../../../backend/api/init_table.dart';
 import '../../../backend/api/get_exchange_rate.dart';
@@ -18,7 +20,8 @@ import '../../../backend/models/init_tabel_model.dart';
 class ExchangePageController extends GetxController {
   TextEditingController sourceTextController = TextEditingController();
   TextEditingController destinationTextController = TextEditingController();
-  var isTyping = false.obs;
+  var isFirstTyping = false.obs;
+  var isSecondTyping = false.obs;
   var mainAddress = ''.obs;
   var supportAddress = ''.obs;
 
@@ -53,6 +56,7 @@ class ExchangePageController extends GetxController {
 
 // use ""firstOnChange"" & ""secondOnChange"" to send request after stop typing
   firstOnChange(value) {
+    isFirstTyping = true.obs;
     const duration = Duration(milliseconds: 600);
     sendOnStoppedTyping.cancel();
     sendOnStoppedTyping = Timer(
@@ -65,6 +69,7 @@ class ExchangePageController extends GetxController {
   }
 
   secondOnChange(value) {
+    isSecondTyping = true.obs;
     const duration = Duration(milliseconds: 600);
     sendOnStoppedTyping.cancel();
     sendOnStoppedTyping = Timer(
@@ -134,9 +139,9 @@ class ExchangePageController extends GetxController {
     var initTableData = await InitTableApi().initTable();
     estimate = initTableData!['estimate'] ?? [];
     sourceAmount = estimate!.sourceAmount!.obs;
-    sourceTextController.text = sourceAmount.toString();
+    sourceTextController.text = kPersianDigit(sourceAmount);
     destinationAmount = estimate!.destinationAmount!.obs;
-    destinationTextController.text = destinationAmount.toString();
+    destinationTextController.text = kPersianDigit(destinationAmount);
     // save currencys in "currnecylist".
     currencyList = initTableData['list'] ?? {};
     //get default "source" & "destination" currencys.
@@ -201,7 +206,7 @@ class ExchangePageController extends GetxController {
               type: "not-fix");
         }
       } else {
-        if (isFixedPressed.value || isForReverse && isFixed) {
+        if (isForReverse && isFixed) {
           _exchangeRate(
               isForReverse: isForReverse,
               currencyForSell: currencyForSell,
@@ -225,24 +230,14 @@ class ExchangePageController extends GetxController {
       var type,
       var isForReverse = false}) async {
     if (isForReverse) {
-      if (!currencyForBuy.availableForSell ||
-          !currencyForSell.availableForBuy) {
-        Get.defaultDialog(
-            title: 'توجه!',
-            content: const Text('امکان فروش برای ارزهای مورد نظر ممکن نیست'));
-        return;
-      } else {
-        isFixedPressed = true.obs;
-        update();
-        exchangeRate = await GetExchangeRateApi().getExchangeRate(
-          type: type,
-          isForReverse: isForReverse,
-          sourceNetwork: currencyForBuy.inNetwork,
-          sourceCurrency: currencyForBuy.symbol,
-          destinationNetwork: currencyForSell.inNetwork,
-          destinationCurrency: currencyForSell.symbol,
-        );
-      }
+      exchangeRate = await GetExchangeRateApi().getExchangeRate(
+        type: type,
+        isForReverse: isForReverse,
+        sourceNetwork: currencyForBuy.inNetwork,
+        sourceCurrency: currencyForBuy.symbol,
+        destinationNetwork: currencyForSell.inNetwork,
+        destinationCurrency: currencyForSell.symbol,
+      );
     } else {
       exchangeRate = await GetExchangeRateApi().getExchangeRate(
         type: type,
@@ -263,20 +258,36 @@ class ExchangePageController extends GetxController {
     double amount = 0;
 
     amount = isForReverse
-        ? double.parse(destinationTextController.text)
-        : double.parse(sourceTextController.text);
+        ? double.parse(destinationTextController.text.toEnglishDigit())
+        : double.parse(sourceTextController.text.toEnglishDigit());
+    var currencyName =
+        isForReverse ? destinationCurrency!.faName : sourceCurrency!.faName;
+
     if (amount < minimumExchangeAmount.value) {
       Get.defaultDialog(
           title: 'توجه!',
-          content: Text('مقدار وارد شده کمتر از مقدار مجاز میباشد.'
-              '\nکمترین مقدار مجاز : ${minimumExchangeAmount.value}'));
+          content: Text(
+              'مقدار $currencyName وارد شده کمتر از مقدار مجاز میباشد.'
+              '\nکمترین مقدار مجاز : ${kPersianDigit(minimumExchangeAmount.value)}'),
+          onWillPop: () async {
+            if (isForReverse) {
+              destinationTextController.text =
+                  kPersianDigit(minimumExchangeAmount.value);
+              secondOnChange(destinationTextController.text);
+            } else {
+              sourceTextController.text =
+                  kPersianDigit(minimumExchangeAmount.value);
+              firstOnChange(sourceTextController.text);
+            }
+            return true;
+          });
       destinationTextController.text = '';
     } else if (amount > maximumExchangeAmount.value &&
         maximumExchangeAmount.value > 0) {
       Get.defaultDialog(
           title: 'توجه!',
-          content: Text('مقدار وارد شده بیشتر از مقدار مجاز میباشد.'
-              '\nبیشترین مقدار مجاز : ${maximumExchangeAmount.value}'));
+          content: Text('مقدار $currencyName شده بیشتر از مقدار مجاز میباشد.'
+              '\nبیشترین مقدار مجاز : ${kPersianDigit(maximumExchangeAmount.value)}'));
     } else {
       if (isForReverse) {
         _estimateAmount(
@@ -331,13 +342,15 @@ class ExchangePageController extends GetxController {
     message(title: 'Estimate amount', content: estimateAmount);
 
     sourceAmount = estimateAmount!.sourceAmount!.obs;
-    sourceTextController.text = sourceAmount.toString();
+    sourceTextController.text = kPersianDigit(sourceAmount);
     destinationAmount = estimateAmount!.destinationAmount!.obs;
-    destinationTextController.text = destinationAmount.toString();
+    destinationTextController.text = kPersianDigit(destinationAmount);
 
-    message(title: 'forSellAmount :', content: sourceAmount);
+    message(title: 'forSellAmount ', content: sourceAmount);
     message(
-        title: 'estimate amount :', content: estimateAmount!.destinationAmount);
+        title: 'estimate amount ', content: estimateAmount!.destinationAmount);
+    isFirstTyping = false.obs;
+    isSecondTyping = false.obs;
     update();
   }
 
@@ -353,49 +366,10 @@ class ExchangePageController extends GetxController {
   updateFix() {
     isFixedPressed = isFixedPressed.value ? false.obs : true.obs;
     update();
-    message(title: 'is Icon Change', content: isFixedPressed.value);
+    message(title: 'is fix enable', content: isFixedPressed.value);
   }
 
   message({String title = '', var content}) {
     log('$title : $content');
   }
 }
-
-/*   if (pairBeValid!.type!['fix'] && pairBeValid!.type!['not-fix']) {
-      if (isFixed.value) {
-        _exchangeRate(
-            isForReverse: isForReverse,
-            currencyForSell: currencyForSell,
-            currencyForBuy: currencyForBuy,
-            type: 'fix');
-      } else {
-        _exchangeRate(
-            isForReverse: isForReverse,
-            currencyForSell: currencyForSell,
-            currencyForBuy: currencyForBuy,
-            type: 'not_fix');
-      }
-    } else if (!pairBeValid!.type!['fix'] && pairBeValid!.type!['not-fix']) {
-      if (isFixed.value) {
-        Get.defaultDialog(
-          title: "توجه!",
-          content: const Text(
-            'جفت ارز انتخابی قابلیت استفاده از نرخ ثابت را ندارند',
-          ),
-        );
-        isFixed = false.obs;
-        update();
-      } else {
-        _exchangeRate(
-            currencyForSell: currencyForSell,
-            currencyForBuy: currencyForBuy,
-            type: "not-fix");
-      }
-    } else {
-      Get.defaultDialog(
-        title: "توجه!",
-        content: const Text(
-          "این جفت ارز با هم قابل مبادله نیستند",
-        ),
-      );
-    } */

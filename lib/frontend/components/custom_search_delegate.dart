@@ -221,9 +221,7 @@ class CustomSearchDelegate extends SearchDelegate {
                                       Get.put(ExchangePageController());
                                   query = suggestion.engName ?? "";
                                   controller.updateCurrencyChoice(
-                                      isForReverse: true,
-                                      currency: suggestion,
-                                      item: currentBox);
+                                      currency: suggestion, item: currentBox);
 
                                   close(context, null);
                                 } else {

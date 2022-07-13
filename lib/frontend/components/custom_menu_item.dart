@@ -61,7 +61,7 @@ class CustomMenuItem extends StatelessWidget {
                                       Get.back();
                                     },
                                   ),
-                                  buildSubScreen!,
+                                  Expanded(child: buildSubScreen!),
                                 ],
                               ),
                             ));

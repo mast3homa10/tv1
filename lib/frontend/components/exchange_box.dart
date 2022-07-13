@@ -5,13 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:tv1/frontend/components/timer/custom_timer.dart';
 
 import '../pages/exchange/exchange_page_controller.dart';
 import 'timer/timer_controller.dart';
 import '../../backend/models/currency_model.dart';
 import '../../backend/network_constants.dart';
 import '../../constants.dart';
-import 'timer/custom_timer.dart';
 
 class ExchangeBox extends StatelessWidget {
   ExchangeBox({
@@ -167,24 +167,46 @@ class ExchangeBox extends StatelessWidget {
           ),
 
           Expanded(
-            flex: 4,
-            child: Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Form(
+              flex: 4,
+              child: boxId == 1
+                  ? buildBuyBox(context, controller)
+                  : buildSellBox(context, controller)),
+          // following part is for provide for fixer.
+          Expanded(child: buildFixIcon(context)),
+        ],
+      )),
+    );
+  }
+
+//
+  Widget buildSellBox(
+          BuildContext context, ExchangePageController controller) =>
+      Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: controller.isSecondTyping.value
+              ? GestureDetector(
+                  onTap: () {
+                    controller.isSecondTyping = false.obs;
+                    controller.sourceTextController.text = '';
+
+                    controller.update();
+                    FocusManager.instance.primaryFocus?.unfocus();
+                  },
+                  child: Container(
+                      padding: const EdgeInsets.only(
+                          left: 80.0, right: 80.0, top: 25.0, bottom: 25),
+                      child: const CircularProgressIndicator()),
+                )
+              : Form(
                   key: key,
                   child: TextFormField(
-                    /* key: Key(initialValue!),
-                 
-                    initialValue:initialValue, */
                     controller: textController,
                     toolbarOptions: const ToolbarOptions(
                         copy: false,
                         paste: false,
                         cut: false,
                         selectAll: false),
-                    // input amount from user
                     keyboardType: TextInputType.number,
-
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.headline3,
                     decoration: InputDecoration(
@@ -210,32 +232,64 @@ class ExchangeBox extends StatelessWidget {
                             .headline3!
                             .copyWith(
                                 color: Theme.of(context).dividerTheme.color)),
-                    onChanged: boxId == 1
-                        ? controller.secondOnChange
-                        : controller.firstOnChange,
-                    validator: (value) {
-                      if (double.parse(value!) <
-                          controller.minimumExchangeAmount.value) {
-                        Get.snackbar('توجه! ',
-                            " حداقل مقدار ${controller.sourceCurrency!.symbol} نباید کمتر از ${controller.maximumExchangeAmount.value} باشد.");
-                      }
-                      log('here');
-                      return null;
-                    },
-                    onSaved: (String? value) {
-                      log(textController!.text);
-                    },
+                    onChanged: controller.firstOnChange,
                   ),
-                )),
-          ),
-          // following part is for provide for fixer.
-          Expanded(child: buildFixIcon(context)),
-        ],
-      )),
-    );
-  }
+                ));
+  Widget buildBuyBox(BuildContext context, ExchangePageController controller) =>
+      Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: controller.isFirstTyping.value
+              ? GestureDetector(
+                  onTap: () {
+                    controller.isFirstTyping = false.obs;
+                    controller.destinationTextController.text = '';
+                    controller.update();
+                    FocusManager.instance.primaryFocus?.unfocus();
+                  },
+                  child: Container(
+                      padding: const EdgeInsets.only(
+                          left: 80.0, right: 80.0, top: 25.0, bottom: 25),
+                      child: const CircularProgressIndicator()),
+                )
+              : Form(
+                  key: key,
+                  child: TextFormField(
+                    controller: textController,
+                    toolbarOptions: const ToolbarOptions(
+                        copy: false,
+                        paste: false,
+                        cut: false,
+                        selectAll: false),
+                    keyboardType: TextInputType.number,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.headline3,
+                    decoration: InputDecoration(
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                              color: Theme.of(context)
+                                      .appBarTheme
+                                      .backgroundColor ??
+                                  Colors.greenAccent,
+                              width: 0.0),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                              color: Theme.of(context)
+                                      .appBarTheme
+                                      .backgroundColor ??
+                                  Colors.red,
+                              width: 5.0),
+                        ),
+                        hintText: 'مقدار را وارد کنید',
+                        hintStyle: Theme.of(context)
+                            .textTheme
+                            .headline3!
+                            .copyWith(
+                                color: Theme.of(context).dividerTheme.color)),
+                    onChanged: controller.secondOnChange,
+                  ),
+                ));
 
-//
   Widget? buildImage(String? legacyTicker) {
     try {
       return AspectRatio(
@@ -259,6 +313,7 @@ class ExchangeBox extends StatelessWidget {
           return isIconChange
               ? Column(
                   children: [
+                    //todo: set timer for exchange box
                     if (controller.isFixedPressed.value && boxId == 1)
                       CustomTimer(
                         maxSecond: 120,

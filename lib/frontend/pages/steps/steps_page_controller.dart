@@ -11,7 +11,7 @@ class FinalStepsController extends GetxController {
 
   @override
   void onClose() {
-    timerController.value.stopTimer();
+    timerController.value.stop();
     super.onClose();
   }
 

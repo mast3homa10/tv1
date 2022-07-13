@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:tv1/constants.dart';
 
 import '../../components/exchange_box.dart';
 import '../../../frontend/components/convert_button.dart';
@@ -24,100 +24,115 @@ class ExchangePage extends StatelessWidget {
           if (!exchangeController.connectToNetwork.value) {
             return const Center(child: CircularProgressIndicator());
           } else {
-            return Scaffold(
-              resizeToAvoidBottomInset: false,
-              body: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // the Expanded widget below contains ''' cryptocurrency calculator '''.
-                  Expanded(
-                    child: SizedBox(
-                      height: Get.height * 0.4,
-                      child: Padding(
-                        padding: const EdgeInsets.only(top: 8.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            /// for sell box
-                            ExchangeBox(
-                              textController:
-                                  exchangeController.sourceTextController,
-                              currency: exchangeController.isReversed.value
-                                  ? exchangeController.destinationCurrency
-                                  : exchangeController.sourceCurrency,
-                              onPressed: () {
-                                // launch searchbox by tap here
-                                showSearch(
-                                    context: context,
-                                    delegate:
-                                        CustomSearchDelegate(currentBox: 0));
-                              },
-                            ),
-                            // exchange result
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                  left: 10.0, right: 10.0),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  buildResult(context, exchangeController),
-
-                                  // Reversed button
-                                  ReversedButton(
-                                      onTap: exchangeController.updateReversed),
-                                ],
+            return GestureDetector(
+              onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+              child: Scaffold(
+                resizeToAvoidBottomInset: false,
+                body: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // the Expanded widget below contains ''' cryptocurrency calculator '''.
+                    Expanded(
+                      child: SizedBox(
+                        height: Get.height * 0.4,
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              /// for sell box
+                              ExchangeBox(
+                                textController:
+                                    exchangeController.sourceTextController,
+                                currency: exchangeController.isReversed.value
+                                    ? exchangeController.destinationCurrency
+                                    : exchangeController.sourceCurrency,
+                                onPressed: () {
+                                  // launch searchbox by tap here
+                                  showSearch(
+                                      context: context,
+                                      delegate:
+                                          CustomSearchDelegate(currentBox: 0));
+                                },
                               ),
-                            ),
-                            // for buy box
-                            ExchangeBox.second(
-                              textController:
-                                  exchangeController.destinationTextController,
-                              currency: exchangeController.isReversed.value
-                                  ? exchangeController.sourceCurrency
-                                  : exchangeController.destinationCurrency,
-                              onPressed: () {
-                                // launch searchbox by tap here
-                                showSearch(
-                                    context: context,
-                                    delegate: CustomSearchDelegate(
-                                      currentBox: 1,
-                                    ));
-                              },
-                              isIconChange:
-                                  exchangeController.isFixedPressed.value,
-                              openIconPressed: () {
-                                buildSnakBar(context);
-                                exchangeController.updateFix();
-                              },
-                              closeIconPressed: () {
-                                timerController.stopTimer();
-                                exchangeController.updateFix();
-                              },
-                            ),
-                          ],
+                              // exchange result
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                    left: 10.0, right: 10.0),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    buildResult(context, exchangeController),
+
+                                    // Reversed button
+                                    ReversedButton(
+                                        onTap:
+                                            exchangeController.updateReversed),
+                                  ],
+                                ),
+                              ),
+                              // for buy box
+                              ExchangeBox.second(
+                                textController: exchangeController
+                                    .destinationTextController,
+                                currency: exchangeController.isReversed.value
+                                    ? exchangeController.sourceCurrency
+                                    : exchangeController.destinationCurrency,
+                                onPressed: () {
+                                  // launch searchbox by tap here
+                                  showSearch(
+                                      context: context,
+                                      delegate: CustomSearchDelegate(
+                                        currentBox: 1,
+                                      ));
+                                },
+                                isIconChange:
+                                    exchangeController.isFixedPressed.value,
+                                openIconPressed: () {
+                                  buildFixSnakBar(context);
+                                  exchangeController.updateFix();
+                                  exchangeController.isSecondTyping = true.obs;
+                                  exchangeController.updateExchange(
+                                      source: exchangeController.sourceCurrency,
+                                      destination: exchangeController
+                                          .destinationCurrency,
+                                      isForReverse: true);
+                                },
+                                closeIconPressed: () {
+                                  exchangeController.updateFix();
+                                  exchangeController.isFirstTyping = true.obs;
+                                  exchangeController.updateExchange(
+                                    source: exchangeController.sourceCurrency,
+                                    destination:
+                                        exchangeController.destinationCurrency,
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
 
-                  // the padding widget below contains '''add address button'''.
-                  Padding(
-                    padding: const EdgeInsets.all(15.0),
-                    child: CustomBigButton(
-                      label: 'وارد کردن آدرس',
-                      onPressed: () {
-                        // Get.snackbar('توجه!', "در حال توسعه ...");
-                        if (timerController.timer != null) {
-                          timerController.stopTimer();
-                        }
+                    // the padding widget below contains '''add address button'''.
+                    Padding(
+                      padding: const EdgeInsets.all(15.0),
+                      child: CustomBigButton(
+                        label: 'وارد کردن آدرس',
+                        onPressed: () {
+                          // Get.snackbar('توجه!', "در حال توسعه ...");
+                          if (timerController.timer != null) {
+                            timerController.stop();
+                          }
 
-                        Get.to(AddressPage());
-                      },
+                          Get.to(AddressPage());
+                        },
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             );
           }
@@ -128,7 +143,7 @@ class ExchangePage extends StatelessWidget {
     );
   }
 
-  void buildSnakBar(BuildContext context) {
+  void buildFixSnakBar(BuildContext context) {
     showModalBottomSheet(
         isDismissible: true,
         shape: const RoundedRectangleBorder(
@@ -182,49 +197,138 @@ class ExchangePage extends StatelessWidget {
       BuildContext context, ExchangePageController exchangeController) {
     var source = exchangeController.sourceAmount.value;
     var destination = exchangeController.destinationAmount.value;
-    return Column(children: [
-      Row(
-        children: [
-          Text(
-            ' هر یک  '
-            '${exchangeController.sourceCurrency!.symbol!.toUpperCase()} ~ ',
-            style: Theme.of(context)
-                .textTheme
-                .headline5!
-                .copyWith(fontWeight: FontWeight.w700),
+    return GestureDetector(
+      onTap: () => buildHelpSnakbar(context),
+      child: Row(children: [
+        Container(
+          decoration: BoxDecoration(
+              color: Colors.green, borderRadius: BorderRadius.circular(10)),
+          child: Padding(
+            padding: const EdgeInsets.all(5.0),
+            child: Row(
+              textBaseline: TextBaseline.alphabetic,
+              crossAxisAlignment: CrossAxisAlignment.baseline,
+              children: [
+                Text(
+                  "${exchangeController.destinationCurrency!.symbol!.toUpperCase()} ",
+                  style: Theme.of(context).textTheme.headline5!.copyWith(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 15,
+                        letterSpacing: 1.0,
+                      ),
+                ),
+                Text(
+                  kPersianDigit((destination / source).toStringAsFixed(8)),
+                  style: Theme.of(context).textTheme.headline5!.copyWith(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 18,
+                        letterSpacing: 1.0,
+                      ),
+                ),
+                Text(
+                  '  ~',
+                  style: Theme.of(context)
+                      .textTheme
+                      .headline5!
+                      .copyWith(fontWeight: FontWeight.w700, fontSize: 20),
+                ),
+                Text(
+                  '  ${exchangeController.sourceCurrency!.symbol!.toUpperCase()} ',
+                  style: Theme.of(context)
+                      .textTheme
+                      .headline5!
+                      .copyWith(fontWeight: FontWeight.w700, fontSize: 15),
+                ),
+                Text(
+                  ' ${kPersianDigit('1')}',
+                  style: Theme.of(context)
+                      .textTheme
+                      .headline5!
+                      .copyWith(fontSize: 18, fontWeight: FontWeight.w700),
+                ),
+              ],
+            ),
           ),
-          Container(
-            decoration: BoxDecoration(
-                color: Colors.green, borderRadius: BorderRadius.circular(10)),
-            child: Padding(
-              padding: const EdgeInsets.all(5.0),
-              child: Row(
+        ),
+        /*    Row(
+              textBaseline: TextBaseline.alphabetic,
+              crossAxisAlignment: CrossAxisAlignment.baseline,
+              children: [
+                Text(
+                  '  ~',
+                  style: Theme.of(context)
+                      .textTheme
+                      .headline5!
+                      .copyWith(fontWeight: FontWeight.w700, fontSize: 20),
+                ),
+                Text(
+                  '  ${exchangeController.sourceCurrency!.symbol!.toUpperCase()} ',
+                  style: Theme.of(context)
+                      .textTheme
+                      .headline5!
+                      .copyWith(fontWeight: FontWeight.w700),
+                ),
+                Text(
+                  ' ${kPersianDigit('1')}',
+                  style: Theme.of(context)
+                      .textTheme
+                      .headline5!
+                      .copyWith(fontSize: 22, fontWeight: FontWeight.w700),
+                ),
+              ],
+            ),
+         */
+      ]),
+    );
+  }
+
+  void buildHelpSnakbar(BuildContext context) {
+    showModalBottomSheet(
+        isDismissible: true,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(50),
+          ),
+        ),
+        clipBehavior: Clip.antiAliasWithSaveLayer,
+        context: context,
+        builder: (builder) {
+          return Container(
+            height: Get.height * 0.3,
+            color: Theme.of(context).bottomSheetTheme.backgroundColor,
+            child: Center(
+              child: Column(
                 children: [
-                  Text(
-                    "${exchangeController.destinationCurrency!.symbol!.toUpperCase()} ",
-                    style: Theme.of(context).textTheme.headline5!.copyWith(
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: 1.0,
-                        ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Container(
+                      height: 5,
+                      width: 40,
+                      decoration: BoxDecoration(
+                          color: Theme.of(context).dividerTheme.color,
+                          borderRadius: BorderRadius.circular(20)),
+                    ),
                   ),
-                  Text(
-                    (destination / source).toStringAsFixed(8),
-                    style: Theme.of(context).textTheme.headline5!.copyWith(
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: 1.0,
-                        ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      'این یک نرخ مورد انتظار است',
+                      style: Theme.of(context).textTheme.headline3,
+                    ),
                   ),
-                  const Padding(
-                    padding: EdgeInsets.all(2.0),
-                    child: Icon(FontAwesomeIcons.circleArrowDown,
-                        color: Colors.white),
-                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      'تغییر اکنون بهترین نرخرا برای شما در لحظه مبادله انتخاب می کند'
+                      '\n هزینه های شبکه و سایر هزینه های مبادله در نرخ گنجانده شده است'
+                      '\n ما هییچ هزنیه اضافی را تضمین نمی کنیم .',
+                      style: Theme.of(context).textTheme.headline5,
+                    ),
+                  )
                 ],
               ),
             ),
-          ),
-        ],
-      ),
-    ]);
+          );
+        });
   }
 }
