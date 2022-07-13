@@ -17,7 +17,7 @@ class DashboardBodyController extends GetxController {
     const MenuPage(),
     const SupportPage(),
     ExchangePage(),
-    const HistoryPage(),
+    HistoryPage(),
   ];
   changeScreen() {
     isScreenChange = isScreenChange.value ? false.obs : true.obs;
@@ -71,5 +71,6 @@ class DashboardBodyController extends GetxController {
         ),
       ],
     );
+    return null;
   }
 }

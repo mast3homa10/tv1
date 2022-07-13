@@ -13,8 +13,8 @@ class CustomTimer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    controller.reset(maxSecond);
-    controller.start();
+    controller.setTimer(maxSecond);
+    controller.startTimer();
     return Padding(
       padding: const EdgeInsets.only(top: 3.0, left: 3.0, right: 3.0),
       child: Obx(

@@ -11,42 +11,43 @@ class TimerController extends GetxController {
   var conuter = 0.obs;
   var time = ''.obs;
   Timer? timer;
-
   @override
   void onClose() {
     isTimerOn = false.obs;
-    stop();
+    stopTimer();
     super.onClose();
   }
 
-  reset(int maxSeconds) {
+  setTimer(int maxSeconds) {
     seconds = maxSeconds.obs;
+    update();
   }
 
-  start() {
+  startTimer() {
     isTimerOn = true.obs;
     timer = Timer.periodic(const Duration(seconds: 1), (_) {
-      countDown();
+      decrement();
     });
   }
 
-  stop() {
-    reset(kMaxSeconds);
-    isTimerOn = false.obs;
+  stopTimer() {
+    setTimer(kMaxSeconds);
     timer?.cancel();
+    update();
     log('finish');
   }
 
-  countDown() {
+  decrement() {
     if (seconds > 0) {
       seconds--;
+      update();
       time =
           '${((seconds / 60).truncate() % 60).toString().padLeft(2, '0')}:${(seconds % 60).toString().padLeft(2, '0')}'
               .obs;
       log('$time');
     } else {
-      log('ths end of timer');
-      stop();
+      Get.snackbar('توجه!', "زمان به پایان رسید");
+      stopTimer();
     }
   }
 }

@@ -22,5 +22,5 @@ class CheckPairBeVaildModel {
   }
   @override
   toString() =>
-      "\n{{sourceCurrency: $sourceCurrency},\n{destinationCurrency: $destinationCurrency},\n{type: $type},\n ...}";
+      "\n{\n{sourceCurrency: $sourceCurrency},\n{destinationCurrency: $destinationCurrency},\n{type: $type},\n ...}";
 }

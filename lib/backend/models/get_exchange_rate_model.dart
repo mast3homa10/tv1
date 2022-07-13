@@ -28,5 +28,5 @@ class GetExchangeRateModel {
 
   @override
   toString() =>
-      "\n{{minimumExchangeAmount: $minimumExchangeAmount},\n{maximumExchangeAmount: $maximumExchangeAmount},\n{type: $type},\n ...},";
+      "\n{\n{minimumExchangeAmount: $minimumExchangeAmount},\n{maximumExchangeAmount: $maximumExchangeAmount},\n{type: $type},\n ...},";
 }

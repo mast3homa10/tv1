@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:async';
 import 'dart:developer';
+import 'package:custom_timer/custom_timer.dart';
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
@@ -44,6 +45,10 @@ class ExchangePageController extends GetxController {
   InitTabelModel? estimate;
   EstimateExchangeAmountModel? estimateAmount;
   var pairBeValidType = ''.obs;
+
+  var time = 0.obs;
+
+  final CustomTimerController timerController = CustomTimerController();
 
   @override
   void onInit() {
@@ -340,6 +345,14 @@ class ExchangePageController extends GetxController {
       );
     }
     message(title: 'Estimate amount', content: estimateAmount);
+    if (estimateAmount!.validUntil != '') {
+      log("${estimateAmount!.validUntil}");
+      DateTime date1 = DateTime.now();
+      DateTime date2 = DateTime.parse(estimateAmount!.validUntil!);
+      time = date2.difference(date1).inSeconds.obs;
+
+      log('time : $time');
+    }
 
     sourceAmount = estimateAmount!.sourceAmount!.obs;
     sourceTextController.text = kPersianDigit(sourceAmount);

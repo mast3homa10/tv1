@@ -45,7 +45,8 @@ class AddressPageController extends GetxController {
         ValidationAddressModel? validAddress = await ValidationAddressApi()
             .getValidation(
                 address: textAddressController.text,
-                currencyNetwork: exchangeController.sourceCurrency!.inNetwork!);
+                currencyNetwork:
+                    exchangeController.destinationCurrency!.inNetwork!);
         if (validAddress!.isValid == 'true') {
           showSecondBox();
           currenButton = Button.second.obs;

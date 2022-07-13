@@ -58,5 +58,5 @@ class CreateTransactionModel {
 
   @override
   toString() =>
-      "\n{{id: $id},\n{destinationAmount: $destinationAmount},\n{destinationCurrency: $destinationCurrency},\n ...}";
+      "\n{\n{id: $id},\n{destinationAmount: $destinationAmount},\n{destinationCurrency: $destinationCurrency},\n ...}";
 }

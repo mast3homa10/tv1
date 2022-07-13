@@ -10,7 +10,6 @@ import 'package:tv1/backend/models/get_transaction_status_model.dart';
 
 import '../../../../backend/api/get_transaction_status.dart';
 import '../../../../frontend/pages/address_page.dart/address_page_controller.dart';
-import '../../../components/timer/custom_timer.dart';
 import '../../exchange/exchange_page_controller.dart';
 import '../steps_page_controller.dart';
 
@@ -80,9 +79,10 @@ class _Step1State extends State<Step1> {
                         'زمان باقی مانده برای ارسال ',
                         style: Theme.of(context).textTheme.headline5,
                       ),
-                      CustomTimer(
-                          maxSecond: 600,
-                          controller: finalController.timerController.value),
+                      //todo: fix timer for step
+                      // CustomTimer(
+                      //     maxSecond: 600,
+                      //     controller: finalController.timerController.value),
                     ],
                   ),
                 Row(

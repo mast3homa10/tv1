@@ -43,7 +43,8 @@ class EstimateExchangeAmountModel {
   }
 
   @override
-  toString() => "\n{{rateId: $rateId},\n{sourceAmount: $sourceAmount},"
+  toString() =>
+      "\n{\n{rateId: $rateId},\n{validUntil: $validUntil},\n{sourceAmount: $sourceAmount},"
       "\n{destinationAmount: $destinationAmount},\n{type: $type},"
       "\n{directionOfExchangeFlow: $directionOfExchangeFlow},\n...}";
 }

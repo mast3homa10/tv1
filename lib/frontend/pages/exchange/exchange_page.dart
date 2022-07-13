@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
-import 'package:tv1/constants.dart';
 
+import '../../../constants.dart';
 import '../../components/exchange_box.dart';
 import '../../../frontend/components/convert_button.dart';
 import '../../../frontend/components/custom_big_button.dart';
@@ -124,7 +124,7 @@ class ExchangePage extends StatelessWidget {
                         onPressed: () {
                           // Get.snackbar('توجه!', "در حال توسعه ...");
                           if (timerController.timer != null) {
-                            timerController.stop();
+                            timerController.stopTimer();
                           }
 
                           Get.to(AddressPage());

@@ -1,14 +1,13 @@
 import 'dart:developer';
-
+import 'package:custom_timer/custom_timer.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
-import 'package:tv1/frontend/components/timer/custom_timer.dart';
 
 import '../pages/exchange/exchange_page_controller.dart';
-import 'timer/timer_controller.dart';
 import '../../backend/models/currency_model.dart';
 import '../../backend/network_constants.dart';
 import '../../constants.dart';
@@ -48,7 +47,6 @@ class ExchangeBox extends StatelessWidget {
     this.openIconPressed,
     this.closeIconPressed,
   }) : super(key: key);
-  final timerController = Get.put(TimerController());
   final controller = Get.put(ExchangePageController());
 
   @override
@@ -315,10 +313,18 @@ class ExchangeBox extends StatelessWidget {
                   children: [
                     //todo: set timer for exchange box
                     if (controller.isFixedPressed.value && boxId == 1)
-                      CustomTimer(
-                        maxSecond: 120,
-                        controller: timerController,
-                      ),
+                      // CustomTimer(
+                      //   exchangeController: controller,
+                      // ),
+                      // CustomTimer(
+                      //     controller: controller.timerController,
+                      //     begin: Duration(seconds: controller.time.value),
+                      //     end: const Duration(),
+                      //     builder: (time) {
+                      //       return Text(
+                      //           "${time.hours}:${time.minutes}:${time.seconds}.${time.milliseconds}",
+                      //           style: const TextStyle(fontSize: 24.0));
+                      //     }),
                     const Icon(
                       FontAwesomeIcons.clock,
                       size: 10,
