@@ -26,7 +26,8 @@ class ExchangePageController extends GetxController {
   var mainAddress = ''.obs;
   var supportAddress = ''.obs;
 
-  RxBool connectToNetwork = false.obs;
+  RxBool isConnectToNetwork = false.obs;
+  RxBool isTrying = false.obs;
   RxBool isFixedPressed = false.obs;
   RxBool isReversed = false.obs;
   var searchItem = 0.obs;
@@ -83,7 +84,6 @@ class ExchangePageController extends GetxController {
             isForReverse: true,
             source: sourceCurrency,
             destination: destinationCurrency));
-
     update();
   }
 
@@ -93,14 +93,25 @@ class ExchangePageController extends GetxController {
       final result = await InternetAddress.lookup('example.com');
       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
         message(title: 'Connection', content: 'connected');
-        connectToNetwork = true.obs;
+        isConnectToNetwork = true.obs;
+        isTrying = false.obs;
+        update();
+
         //get init table
         _initTable();
+        isTrying = false.obs;
+        update();
+      } else {
+        message(title: 'Connection', content: 'not connected');
+        isConnectToNetwork = false.obs;
+        isTrying = true.obs;
+
         update();
       }
     } on SocketException catch (_) {
+      log('$_');
       message(title: 'Connection', content: 'not connected');
-      connectToNetwork = false.obs;
+      isConnectToNetwork = false.obs;
       update();
     }
   }
@@ -353,17 +364,19 @@ class ExchangePageController extends GetxController {
 
       log('time : $time');
     }
-
-    sourceAmount = estimateAmount!.sourceAmount!.obs;
-    sourceTextController.text = kPersianDigit(sourceAmount);
-    destinationAmount = estimateAmount!.destinationAmount!.obs;
-    destinationTextController.text = kPersianDigit(destinationAmount);
+    if (isFirstTyping.value) {
+      isFirstTyping = false.obs;
+      destinationAmount = estimateAmount!.destinationAmount!.obs;
+      destinationTextController.text = kPersianDigit(destinationAmount);
+    } else {
+      isSecondTyping = false.obs;
+      sourceAmount = estimateAmount!.sourceAmount!.obs;
+      sourceTextController.text = kPersianDigit(sourceAmount);
+    }
 
     message(title: 'forSellAmount ', content: sourceAmount);
     message(
         title: 'estimate amount ', content: estimateAmount!.destinationAmount);
-    isFirstTyping = false.obs;
-    isSecondTyping = false.obs;
     update();
   }
 

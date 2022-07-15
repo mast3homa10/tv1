@@ -1,5 +1,4 @@
 import 'dart:developer';
-import 'package:custom_timer/custom_timer.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -325,10 +324,10 @@ class ExchangeBox extends StatelessWidget {
                       //           "${time.hours}:${time.minutes}:${time.seconds}.${time.milliseconds}",
                       //           style: const TextStyle(fontSize: 24.0));
                       //     }),
-                    const Icon(
-                      FontAwesomeIcons.clock,
-                      size: 10,
-                    ),
+                      const Icon(
+                        FontAwesomeIcons.clock,
+                        size: 10,
+                      ),
                     IconButton(
                       onPressed: closeIconPressed,
                       icon: Icon(

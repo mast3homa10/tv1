@@ -3,8 +3,8 @@ class ValidationAddressModel {
   String? message;
 
   ValidationAddressModel({
-    this.isValid = 'false',
-    this.message = 'test',
+    this.isValid = '',
+    this.message = '',
   });
 
   ValidationAddressModel.fromJson(json)
@@ -12,5 +12,5 @@ class ValidationAddressModel {
         message = json['message'];
 
   @override
-  toString() => "\n{isValid: $isValid }, {message: $message ...},";
+  toString() => "{{isValid: $isValid }, {message: $message }}";
 }

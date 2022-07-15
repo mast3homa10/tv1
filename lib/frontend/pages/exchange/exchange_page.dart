@@ -11,133 +11,216 @@ import '../../../frontend/components/timer/timer_controller.dart';
 import '../../../frontend/pages/address_page.dart/address_page.dart';
 import 'exchange_page_controller.dart';
 
-class ExchangePage extends StatelessWidget {
-  ExchangePage({Key? key}) : super(key: key);
+class ExchangePage extends StatefulWidget {
+  const ExchangePage({Key? key}) : super(key: key);
+
+  @override
+  State<ExchangePage> createState() => _ExchangePageState();
+}
+
+class _ExchangePageState extends State<ExchangePage>
+    with TickerProviderStateMixin {
+  final double widgetATop = 0;
+  final double widgetBTop = 200;
+  bool swapped = false;
+
+  late AnimationController controller;
+  late Animation<double> addressAnimation;
+  animationListener() => setState(() {});
+
+  @override
+  void didChangeDependencies() async {
+    super.didChangeDependencies();
+
+    // Initialize animations
+    controller = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+
+    addressAnimation = Tween(
+      begin: 0.0,
+      end: widgetBTop - widgetATop,
+    ).animate(CurvedAnimation(
+      parent: controller,
+      curve: const Interval(0.0, 1.0, curve: Curves.easeInOut),
+    ))
+      ..addListener(animationListener);
+  }
+
+  @override
+  dispose() {
+    // Dispose of animation controller
+    controller.dispose();
+    super.dispose();
+  }
+
+  bool isSwap = false;
 
   final timerController = Get.put(TimerController());
 
+  final exchangeController = Get.put(ExchangePageController());
+
   @override
   Widget build(BuildContext context) {
+    var tweenValue = addressAnimation.value;
+
     return GetBuilder<ExchangePageController>(
       builder: (exchangeController) {
         try {
-          if (!exchangeController.connectToNetwork.value) {
-            return const Center(child: CircularProgressIndicator());
-          } else {
-            return GestureDetector(
-              onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-              child: Scaffold(
-                resizeToAvoidBottomInset: false,
-                body: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // the Expanded widget below contains ''' cryptocurrency calculator '''.
-                    Expanded(
-                      child: SizedBox(
-                        height: Get.height * 0.4,
-                        child: Padding(
-                          padding: const EdgeInsets.only(top: 8.0),
+          return GestureDetector(
+            onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+            child: Scaffold(
+              resizeToAvoidBottomInset: false,
+              body: exchangeController.isTrying.value
+                  ? kSpinkit
+                  : !exchangeController.isConnectToNetwork.value
+                      ? Center(
+                          child: GestureDetector(
                           child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              /// for sell box
-                              ExchangeBox(
-                                textController:
-                                    exchangeController.sourceTextController,
-                                currency: exchangeController.isReversed.value
-                                    ? exchangeController.destinationCurrency
-                                    : exchangeController.sourceCurrency,
-                                onPressed: () {
-                                  // launch searchbox by tap here
-                                  showSearch(
-                                      context: context,
-                                      delegate:
-                                          CustomSearchDelegate(currentBox: 0));
-                                },
-                              ),
-                              // exchange result
-                              Padding(
-                                padding: const EdgeInsets.only(
-                                    left: 10.0, right: 10.0),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    buildResult(context, exchangeController),
-
-                                    // Reversed button
-                                    ReversedButton(
-                                        onTap:
-                                            exchangeController.updateReversed),
-                                  ],
-                                ),
-                              ),
-                              // for buy box
-                              ExchangeBox.second(
-                                textController: exchangeController
-                                    .destinationTextController,
-                                currency: exchangeController.isReversed.value
-                                    ? exchangeController.sourceCurrency
-                                    : exchangeController.destinationCurrency,
-                                onPressed: () {
-                                  // launch searchbox by tap here
-                                  showSearch(
-                                      context: context,
-                                      delegate: CustomSearchDelegate(
-                                        currentBox: 1,
-                                      ));
-                                },
-                                isIconChange:
-                                    exchangeController.isFixedPressed.value,
-                                openIconPressed: () {
-                                  buildFixSnakBar(context);
-                                  exchangeController.updateFix();
-                                  exchangeController.isSecondTyping = true.obs;
-                                  exchangeController.updateExchange(
-                                      source: exchangeController.sourceCurrency,
-                                      destination: exchangeController
-                                          .destinationCurrency,
-                                      isForReverse: true);
-                                },
-                                closeIconPressed: () {
-                                  exchangeController.updateFix();
-                                  exchangeController.isFirstTyping = true.obs;
-                                  exchangeController.updateExchange(
-                                    source: exchangeController.sourceCurrency,
-                                    destination:
-                                        exchangeController.destinationCurrency,
-                                  );
-                                },
+                            children: const [
+                              Text('تلاش مجدد'),
+                              Icon(
+                                Icons.refresh,
+                                size: 40.0,
                               ),
                             ],
                           ),
+                          onTap: () {
+                            exchangeController.isTrying = true.obs;
+                            exchangeController.update();
+                            exchangeController.checkConnection();
+                          },
+                        ))
+                      : Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            // the Expanded widget below contains ''' cryptocurrency calculator '''.
+                            Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.only(top: 8.0),
+                                child: Stack(
+                                  children: [
+                                    /// for sell box
+                                    Positioned(
+                                      top: 0 + tweenValue,
+                                      child: ExchangeBox(
+                                        textController: exchangeController
+                                            .sourceTextController,
+                                        currency: exchangeController
+                                                .isReversed.value
+                                            ? exchangeController
+                                                .destinationCurrency
+                                            : exchangeController.sourceCurrency,
+                                        onPressed: () {
+                                          // launch searchbox by tap here
+                                          showSearch(
+                                              context: context,
+                                              delegate: CustomSearchDelegate(
+                                                  currentBox: 0));
+                                        },
+                                      ),
+                                    ),
+                                    // exchange result
+                                    Positioned(
+                                      top: 130,
+                                      width: Get.width,
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(
+                                            left: 10.0, right: 10.0),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            buildResult(
+                                                context, exchangeController),
+
+                                            // Reversed button
+                                            ReversedButton(onTap: () {
+                                              setState(() {
+                                                swapped
+                                                    ? controller.reverse()
+                                                    : controller.forward();
+                                                swapped = !swapped;
+                                              });
+                                            }),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                    // for buy box
+                                    Positioned(
+                                      top: 200 - tweenValue,
+                                      child: ExchangeBox.second(
+                                        textController: exchangeController
+                                            .destinationTextController,
+                                        currency: exchangeController
+                                                .isReversed.value
+                                            ? exchangeController.sourceCurrency
+                                            : exchangeController
+                                                .destinationCurrency,
+                                        onPressed: () {
+                                          // launch searchbox by tap here
+                                          showSearch(
+                                              context: context,
+                                              delegate: CustomSearchDelegate(
+                                                currentBox: 1,
+                                              ));
+                                        },
+                                        isIconChange: exchangeController
+                                            .isFixedPressed.value,
+                                        openIconPressed: () {
+                                          buildFixSnakBar(context);
+                                          exchangeController.updateFix();
+                                          exchangeController.isSecondTyping =
+                                              true.obs;
+                                          exchangeController.updateExchange(
+                                              source: exchangeController
+                                                  .sourceCurrency,
+                                              destination: exchangeController
+                                                  .destinationCurrency,
+                                              isForReverse: true);
+                                        },
+                                        closeIconPressed: () {
+                                          exchangeController.updateFix();
+                                          exchangeController.isFirstTyping =
+                                              true.obs;
+                                          exchangeController.updateExchange(
+                                            source: exchangeController
+                                                .sourceCurrency,
+                                            destination: exchangeController
+                                                .destinationCurrency,
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+
+                            // the padding widget below contains '''add address button'''.
+                            Padding(
+                              padding: const EdgeInsets.all(15.0),
+                              child: CustomBigButton(
+                                label: 'وارد کردن آدرس',
+                                onPressed: () {
+                                  // Get.snackbar('توجه!', "در حال توسعه ...");
+                                  if (timerController.timer != null) {
+                                    timerController.stopTimer();
+                                  }
+
+                                  Get.to(AddressPage());
+                                },
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                    ),
-
-                    // the padding widget below contains '''add address button'''.
-                    Padding(
-                      padding: const EdgeInsets.all(15.0),
-                      child: CustomBigButton(
-                        label: 'وارد کردن آدرس',
-                        onPressed: () {
-                          // Get.snackbar('توجه!', "در حال توسعه ...");
-                          if (timerController.timer != null) {
-                            timerController.stopTimer();
-                          }
-
-                          Get.to(AddressPage());
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          }
+            ),
+          );
         } catch (e) {
-          return const Center(child: CircularProgressIndicator());
+          return kSpinkit;
         }
       },
     );

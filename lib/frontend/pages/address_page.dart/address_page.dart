@@ -5,7 +5,7 @@ import 'package:get/get.dart';
 import '../../../frontend/pages/address_page.dart/address_page_controller.dart';
 import '../../../frontend/components/nav_bar/second_nav_bar.dart';
 import '../../../constants.dart';
-import 'sub_screen/add_address_screen.dart';
+import 'sub_screen/set_address_screen.dart';
 import 'sub_screen/address_book_screen.dart';
 
 class AddressPage extends StatelessWidget {
@@ -14,7 +14,7 @@ class AddressPage extends StatelessWidget {
   }) : super(key: key);
 
   final subScreen = [
-    const AddAddressScreen(),
+    const SetAddressScreen(),
     const AddressBookScreen(),
   ];
   final controller = Get.put(AddressPageController());

@@ -13,14 +13,12 @@ class ValidationAddressApi {
         Uri.parse(baseUrl + validationAddressEndpoint),
         body: json.encode({"currency": currencyNetwork, "address": address}),
         headers: {'Content-Type': 'application/json'});
-
     if (response.statusCode == 200) {
       Map<String, dynamic> data =
           json.decode(response.body)['data']['validAddress'];
 
       ValidationAddressModel decodedData =
           ValidationAddressModel.fromJson(data);
-      log('$decodedData');
       return decodedData;
     } else {
       log("/////////////////////////////");

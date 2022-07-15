@@ -11,6 +11,7 @@ import '../../pages/dashboard/dashboard_body_controller.dart';
 class DashboardBody extends StatelessWidget {
   DashboardBody({Key? key}) : super(key: key);
   final exchangePageController = ExchangePageController();
+  final dashboardBodyController = DashboardBodyController();
 
   @override
   Widget build(BuildContext context) {

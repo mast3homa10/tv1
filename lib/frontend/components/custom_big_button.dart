@@ -19,6 +19,7 @@ class CustomBigButton extends StatelessWidget {
             shape: MaterialStateProperty.all<OutlinedBorder>(
                 RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30)))),
+        onPressed: onPressed,
         child: SizedBox(
           height: 62,
           child: Center(
@@ -29,7 +30,6 @@ class CustomBigButton extends StatelessWidget {
                       style: Theme.of(context).textTheme.button!.copyWith(
                           color: Theme.of(context).scaffoldBackgroundColor),
                     )),
-        ),
-        onPressed: onPressed);
+        ));
   }
 }

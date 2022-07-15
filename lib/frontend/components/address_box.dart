@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'package:flutter/material.dart';
 
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -7,8 +6,7 @@ import 'package:get/route_manager.dart';
 import 'package:clipboard/clipboard.dart';
 
 import '../../frontend/pages/address_page.dart/address_page_controller.dart';
-import '../../frontend/pages/address_page.dart/sub_screen/qr_code_screen.dart';
-import '../../backend/api/validation_address.dart';
+import '../pages/address_page.dart/sub_screen/qr_code_screen.dart';
 import '../pages/exchange/exchange_page_controller.dart';
 
 class AddressBox extends StatefulWidget {
@@ -130,22 +128,6 @@ class _AddressBoxState extends State<AddressBox> {
                       .headline4!
                       .copyWith(color: Theme.of(context).dividerTheme.color),
                 ),
-                onChanged: (value) {
-                  log(value);
-                },
-                validator: (value) {
-                  if (value!.isEmpty) {
-                    Get.snackbar(
-                        'توجه !', 'برای شروع تبادل باید آدرس خود را وارد کنید');
-                  }
-                  if (value.isNotEmpty) {
-                    ValidationAddressApi().getValidation(
-                        address: addressController.textAddressController.text,
-                        currencyNetwork:
-                            exchangeController.sourceCurrency!.inNetwork!);
-                  }
-                  return null;
-                },
               ),
             ),
             // scan qrcode icon

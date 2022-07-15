@@ -1,94 +1,100 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 
-void main() => runApp(MyApp());
+void main() {
+  runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Timer',
-      theme: ThemeData(
-        primaryColor: Colors.grey.shade800,
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        body: Center(
+          child: AnimatedSwapWidget(),
+        ),
       ),
-      home: MyHomePage(),
     );
   }
 }
 
-class MyHomePage extends StatelessWidget {
-  final StreamController<int> _controller = StreamController<int>();
+class AnimatedSwapWidget extends StatefulWidget {
+  @override
+  createState() => _AnimatedSwapWidgetState();
+}
 
-  int _seconds = 1;
+class _AnimatedSwapWidgetState extends State<AnimatedSwapWidget>
+    with TickerProviderStateMixin {
+  final double widgetATop = 0;
+  final double widgetBTop = 200;
+  bool swapped = false;
+
+  late AnimationController controller;
+  late Animation<double> addressAnimation;
+  animationListener() => setState(() {});
+
+  @override
+  void didChangeDependencies() async {
+    super.didChangeDependencies();
+
+    // Initialize animations
+    controller = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+
+    addressAnimation = Tween(
+      begin: 0.0,
+      end: widgetBTop - widgetATop,
+    ).animate(CurvedAnimation(
+      parent: controller,
+      curve: const Interval(0.0, 1.0, curve: Curves.easeInOut),
+    ))
+      ..addListener(animationListener);
+  }
+
+  @override
+  dispose() {
+    // Dispose of animation controller
+    controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("title"),
-      ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
+    var tweenValue = addressAnimation.value;
+
+    return SizedBox(
+      width: 300,
+      height: 150,
+      child: Stack(
         children: <Widget>[
-          MyTextWidget(stream: _controller.stream), //just update this widget
-          const Divider(),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: <Widget>[
-              IconButton(
-                icon: const Icon(Icons.add_circle),
-                onPressed: _addPressed,
-                iconSize: 150.0,
-              ),
-              IconButton(
-                icon: const Icon(Icons.remove_circle),
-                onPressed: () => _controller.add(_seconds++),
-                iconSize: 150.0,
-              ),
-            ],
-          )
+          //Widget A
+          Positioned(
+            top: widgetATop + tweenValue,
+            left: 20,
+            child: const Text("This is widget A"),
+          ),
+          // Widget B
+          Positioned(
+            top: widgetBTop - tweenValue,
+            left: 20,
+            child: const Text("This is widget B"),
+          ),
+          // Swap button
+          Positioned(
+            top: 50,
+            right: 20,
+            child: TextButton(
+              onPressed: () => setState(() {
+                swapped ? controller.reverse() : controller.forward();
+                swapped = !swapped;
+              }),
+              child: const Text("swap"),
+            ),
+          ),
         ],
       ),
-    );
-  }
-
-  void _addPressed() {
-    //somehow call _updateSeconds()
-  }
-}
-
-class MyTextWidget extends StatefulWidget {
-  final Stream<int> stream;
-
-  const MyTextWidget({required this.stream});
-
-  @override
-  _MyTextWidgetState createState() => _MyTextWidgetState();
-}
-
-class _MyTextWidgetState extends State<MyTextWidget> {
-  int secondsToDisplay = 0;
-
-  void _updateSeconds(int newSeconds) {
-    setState(() {
-      secondsToDisplay = newSeconds;
-    });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    widget.stream.listen((seconds) {
-      _updateSeconds(seconds);
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      secondsToDisplay.toString(),
-      textScaleFactor: 5.0,
     );
   }
 }

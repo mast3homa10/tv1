@@ -8,7 +8,7 @@ import '../../components/custom_big_button.dart';
 class HistoryPage extends StatelessWidget {
   HistoryPage({Key? key}) : super(key: key);
   final int currentItem = 0;
-  List dataItems = [
+  final List dataItems = [
     'fdasadffasdfdasfaf',
     'fdasadffasdfd54984965asd9849faasfaf',
     'fdasad651ffasdfd54984965asdaasfaf',

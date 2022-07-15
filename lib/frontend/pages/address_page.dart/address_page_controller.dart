@@ -13,7 +13,6 @@ import '../../../enums.dart';
 
 class AddressPageController extends GetxController {
   var currentTopItem = 0.obs;
-
   getCurrentTopItem(int index) {
     currentTopItem = index.obs;
     update();
@@ -26,19 +25,21 @@ class AddressPageController extends GetxController {
   showSecondBox() => isSecondBoxShow = true.obs;
 
   var isPressed = false.obs;
+  var isFirstBoxValid = false.obs;
+  var isssecondBoxValid = false.obs;
   var currenButton = Button.first.obs;
   var textAddressController = TextEditingController();
   var textSupportAddressController = TextEditingController();
-  var exchangeController = ExchangePageController();
+  var exchangeController = Get.put(ExchangePageController());
   late BuildContext context;
 
-  addAddress() async {
+  addAddress(BuildContext context) async {
     isPressed = true.obs;
-
-    if (currenButton == Button.first.obs) {
+    update();
+    if (currenButton.value == Button.first) {
       if (textAddressController.text.isEmpty) {
         isPressed = false.obs;
-
+        update();
         Get.snackbar(
             'توجه!', "برای شروع تبادل باید آدرس کیف پول خود را وارد کنید.");
       } else {
@@ -47,14 +48,19 @@ class AddressPageController extends GetxController {
                 address: textAddressController.text,
                 currencyNetwork:
                     exchangeController.destinationCurrency!.inNetwork!);
+        log('validation address :$validAddress');
+
         if (validAddress!.isValid == 'true') {
           showSecondBox();
           currenButton = Button.second.obs;
           isPressed = false.obs;
-        } else {
-          isPressed = false.obs;
+          isFirstBoxValid = true.obs;
 
+          update();
+        } else {
           Get.snackbar('توجه!', "آدرس وارد شده معتبر نیست");
+          isPressed = false.obs;
+          update();
         }
       }
     } else if (currenButton.value == Button.second) {
@@ -68,6 +74,12 @@ class AddressPageController extends GetxController {
             "آیا از خالی گذاشتن آدرس بازپرداخت مطمئن هستید؟ ",
             style: Theme.of(context).textTheme.headline4,
           ),
+          onWillPop: () async {
+            isPressed = false.obs;
+            update();
+
+            return true;
+          },
           actions: <Widget>[
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
@@ -83,6 +95,8 @@ class AddressPageController extends GetxController {
                   onPressed: () {
                     currenButton = Button.last.obs;
                     isPressed = false.obs;
+                    isssecondBoxValid = true.obs;
+                    update();
 
                     Get.back();
                   },
@@ -100,7 +114,7 @@ class AddressPageController extends GetxController {
                   ),
                   onPressed: () {
                     isPressed = false.obs;
-
+                    update();
                     Get.back();
                   },
                 ),
@@ -112,17 +126,22 @@ class AddressPageController extends GetxController {
         ValidationAddressModel? validAddress = await ValidationAddressApi()
             .getValidation(
                 address: textSupportAddressController.text,
-                currencyNetwork: exchangeController.sourceCurrency!.inNetwork!);
+                currencyNetwork:
+                    exchangeController.sourceCurrency!.legacyTicker!);
         if (validAddress!.isValid == 'true') {
           currenButton = Button.last.obs;
           isPressed = false.obs;
+          isssecondBoxValid = true.obs;
+          update();
         } else {
           isPressed = false.obs;
+          update();
 
           Get.snackbar('توجه!', "آدرس وارد شده معتبر نیست");
         }
 
         isPressed = false.obs;
+        update();
       }
     } else {
       var create = await CreateTransactionApi().create();
@@ -133,6 +152,7 @@ class AddressPageController extends GetxController {
       Get.to(() => const StepsPage());
 
       isPressed = false.obs;
+      update();
     }
   }
 }

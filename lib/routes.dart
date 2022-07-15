@@ -1,8 +1,8 @@
 import 'package:get/get.dart';
 
+import '../../frontend/pages/welcome/welcome_binding.dart';
 import 'frontend/pages/address_page.dart/address_page.dart';
 import 'frontend/pages/address_page.dart/sub_screen/qr_code_screen.dart';
-import 'frontend/pages/dashboard/dashboard_body_binding.dart';
 import 'frontend/pages/exchange/exchange_page.dart';
 import 'frontend/pages/steps/steps_page.dart';
 import 'frontend/pages/guide/guide_page.dart';
@@ -14,7 +14,7 @@ List<GetPage<dynamic>> routes = [
   GetPage(
     name: '/',
     page: () => const WelcomePage(),
-    binding: DashboardBodyBinding(),
+    binding: WelcomeBinding(),
   ),
   GetPage(
     name: '/guide_page',
