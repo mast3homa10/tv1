@@ -1,6 +1,6 @@
 import 'package:get/get.dart';
 
-import '../address_page.dart/address_page_controller.dart';
+import '../address/address_page_controller.dart';
 import '../dashboard/dashboard_body_controller.dart';
 import '../exchange/exchange_page_controller.dart';
 import '../menu/menu_page_controller.dart';

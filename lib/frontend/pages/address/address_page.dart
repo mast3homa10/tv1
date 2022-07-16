@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 
-import '../../../frontend/pages/address_page.dart/address_page_controller.dart';
+import '../../../frontend/pages/address/address_page_controller.dart';
 import '../../../frontend/components/nav_bar/second_nav_bar.dart';
 import '../../../constants.dart';
 import 'sub_screen/set_address_screen.dart';

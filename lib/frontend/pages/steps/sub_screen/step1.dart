@@ -9,7 +9,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:tv1/backend/models/get_transaction_status_model.dart';
 
 import '../../../../backend/api/get_transaction_status.dart';
-import '../../../../frontend/pages/address_page.dart/address_page_controller.dart';
+import '../../../../frontend/pages/address/address_page_controller.dart';
 import '../../exchange/exchange_page_controller.dart';
 import '../steps_page_controller.dart';
 

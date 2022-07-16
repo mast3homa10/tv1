@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
+import 'package:tv1/frontend/components/try_again_button.dart';
 
 import '../../../constants.dart';
 import '../../components/exchange_box.dart';
@@ -8,7 +9,8 @@ import '../../../frontend/components/convert_button.dart';
 import '../../../frontend/components/custom_big_button.dart';
 import '../../../frontend/components/custom_search_delegate.dart';
 import '../../../frontend/components/timer/timer_controller.dart';
-import '../../../frontend/pages/address_page.dart/address_page.dart';
+import '../../../frontend/pages/address/address_page.dart';
+import '../welcome/welcome_page_controller.dart';
 import 'exchange_page_controller.dart';
 
 class ExchangePage extends StatefulWidget {
@@ -21,8 +23,8 @@ class ExchangePage extends StatefulWidget {
 class _ExchangePageState extends State<ExchangePage>
     with TickerProviderStateMixin {
   final double widgetATop = 0;
-  final double widgetBTop = 200;
-  bool swapped = false;
+  final double widgetBTop = 180;
+  bool isSwapped = false;
 
   late AnimationController controller;
   late Animation<double> addressAnimation;
@@ -55,11 +57,10 @@ class _ExchangePageState extends State<ExchangePage>
     super.dispose();
   }
 
-  bool isSwap = false;
-
   final timerController = Get.put(TimerController());
 
   final exchangeController = Get.put(ExchangePageController());
+  final welcomeController = Get.put(WelcomePageController());
 
   @override
   Widget build(BuildContext context) {
@@ -72,26 +73,10 @@ class _ExchangePageState extends State<ExchangePage>
             onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
             child: Scaffold(
               resizeToAvoidBottomInset: false,
-              body: exchangeController.isTrying.value
+              body: welcomeController.isTrying.value
                   ? kSpinkit
-                  : !exchangeController.isConnectToNetwork.value
-                      ? Center(
-                          child: GestureDetector(
-                          child: Column(
-                            children: const [
-                              Text('تلاش مجدد'),
-                              Icon(
-                                Icons.refresh,
-                                size: 40.0,
-                              ),
-                            ],
-                          ),
-                          onTap: () {
-                            exchangeController.isTrying = true.obs;
-                            exchangeController.update();
-                            exchangeController.checkConnection();
-                          },
-                        ))
+                  : !welcomeController.isConnectToNetwork.value
+                      ? TryAgainButton()
                       : Column(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -104,27 +89,12 @@ class _ExchangePageState extends State<ExchangePage>
                                   children: [
                                     /// for sell box
                                     Positioned(
-                                      top: 0 + tweenValue,
-                                      child: ExchangeBox(
-                                        textController: exchangeController
-                                            .sourceTextController,
-                                        currency: exchangeController
-                                                .isReversed.value
-                                            ? exchangeController
-                                                .destinationCurrency
-                                            : exchangeController.sourceCurrency,
-                                        onPressed: () {
-                                          // launch searchbox by tap here
-                                          showSearch(
-                                              context: context,
-                                              delegate: CustomSearchDelegate(
-                                                  currentBox: 0));
-                                        },
-                                      ),
-                                    ),
-                                    // exchange result
+                                        top: widgetATop + tweenValue,
+                                        width: Get.width,
+                                        child: buildFirstBox()),
+                                    // exchange result & reverse button
                                     Positioned(
-                                      top: 130,
+                                      top: 110,
                                       width: Get.width,
                                       child: Padding(
                                         padding: const EdgeInsets.only(
@@ -137,64 +107,16 @@ class _ExchangePageState extends State<ExchangePage>
                                                 context, exchangeController),
 
                                             // Reversed button
-                                            ReversedButton(onTap: () {
-                                              setState(() {
-                                                swapped
-                                                    ? controller.reverse()
-                                                    : controller.forward();
-                                                swapped = !swapped;
-                                              });
-                                            }),
+                                            buildReverseButton(),
                                           ],
                                         ),
                                       ),
                                     ),
                                     // for buy box
                                     Positioned(
-                                      top: 200 - tweenValue,
-                                      child: ExchangeBox.second(
-                                        textController: exchangeController
-                                            .destinationTextController,
-                                        currency: exchangeController
-                                                .isReversed.value
-                                            ? exchangeController.sourceCurrency
-                                            : exchangeController
-                                                .destinationCurrency,
-                                        onPressed: () {
-                                          // launch searchbox by tap here
-                                          showSearch(
-                                              context: context,
-                                              delegate: CustomSearchDelegate(
-                                                currentBox: 1,
-                                              ));
-                                        },
-                                        isIconChange: exchangeController
-                                            .isFixedPressed.value,
-                                        openIconPressed: () {
-                                          buildFixSnakBar(context);
-                                          exchangeController.updateFix();
-                                          exchangeController.isSecondTyping =
-                                              true.obs;
-                                          exchangeController.updateExchange(
-                                              source: exchangeController
-                                                  .sourceCurrency,
-                                              destination: exchangeController
-                                                  .destinationCurrency,
-                                              isForReverse: true);
-                                        },
-                                        closeIconPressed: () {
-                                          exchangeController.updateFix();
-                                          exchangeController.isFirstTyping =
-                                              true.obs;
-                                          exchangeController.updateExchange(
-                                            source: exchangeController
-                                                .sourceCurrency,
-                                            destination: exchangeController
-                                                .destinationCurrency,
-                                          );
-                                        },
-                                      ),
-                                    ),
+                                        top: widgetBTop - tweenValue,
+                                        width: Get.width,
+                                        child: buildSecondBox()),
                                   ],
                                 ),
                               ),
@@ -226,56 +148,100 @@ class _ExchangePageState extends State<ExchangePage>
     );
   }
 
-  void buildFixSnakBar(BuildContext context) {
-    showModalBottomSheet(
-        isDismissible: true,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(
-            top: Radius.circular(50),
-          ),
-        ),
-        clipBehavior: Clip.antiAliasWithSaveLayer,
-        context: context,
-        builder: (builder) {
-          return Container(
-            height: Get.height * 0.3,
-            color: Theme.of(context).bottomSheetTheme.backgroundColor,
-            child: Center(
-              child: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Container(
-                      height: 5,
-                      width: 40,
-                      decoration: BoxDecoration(
-                          color: Theme.of(context).dividerTheme.color,
-                          borderRadius: BorderRadius.circular(20)),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      'این یک نرخ مورد انتظار است',
-                      style: Theme.of(context).textTheme.headline3,
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      'تغییر اکنون بهترین نرخرا برای شما در لحظه مبادله انتخاب می کند'
-                      '\n هزینه های شبکه و سایر هزینه های مبادله در نرخ گنجانده شده است'
-                      '\n ما هییچ هزنیه اضافی را تضمین نمی کنیم .',
-                      style: Theme.of(context).textTheme.headline5,
-                    ),
-                  )
-                ],
-              ),
-            ),
+  Widget buildFirstBox() => ExchangeBox(
+        isHaveIcon: exchangeController.isReversed.value ? true : false,
+        isIconChange: exchangeController.isFixedPressed.value,
+        textController: exchangeController.isReversed.value
+            ? exchangeController.destinationTextController
+            : exchangeController.sourceTextController,
+        currency: exchangeController.sourceCurrency,
+        onPressed: () {
+          // launch searchbox by tap here
+          if (exchangeController.isReversed.value) {
+            showSearch(
+                context: context,
+                delegate: CustomSearchDelegate(currentBox: 1));
+          } else {
+            showSearch(
+                context: context,
+                delegate: CustomSearchDelegate(currentBox: 0));
+          }
+        },
+        openIconPressed: () {
+          buildFixSnakBar(context);
+          exchangeController.updateFix();
+          exchangeController.isSecondTyping = true.obs;
+          exchangeController.updateExchange(
+              source: exchangeController.sourceCurrency,
+              destination: exchangeController.destinationCurrency,
+              isForReverse: true);
+        },
+        closeIconPressed: () {
+          exchangeController.updateFix();
+          exchangeController.isFirstTyping = true.obs;
+          exchangeController.updateExchange(
+            source: exchangeController.sourceCurrency,
+            destination: exchangeController.destinationCurrency,
           );
-        });
-  }
+        },
+      );
+  Widget buildSecondBox() => ExchangeBox.second(
+        isHaveIcon: exchangeController.isReversed.value ? false : true,
+        isIconChange: exchangeController.isFixedPressed.value,
+        textController: exchangeController.isReversed.value
+            ? exchangeController.sourceTextController
+            : exchangeController.destinationTextController,
+        currency: exchangeController.destinationCurrency,
+        onPressed: () {
+          // launch searchbox by tap here
+          if (exchangeController.isReversed.value) {
+            showSearch(
+                context: context,
+                delegate: CustomSearchDelegate(currentBox: 0));
+          } else {
+            showSearch(
+                context: context,
+                delegate: CustomSearchDelegate(
+                  currentBox: 1,
+                ));
+          }
+        },
+        openIconPressed: () {
+          buildFixSnakBar(context);
+          exchangeController.updateFix();
+          exchangeController.isSecondTyping = true.obs;
+          exchangeController.updateExchange(
+              source: exchangeController.sourceCurrency,
+              destination: exchangeController.destinationCurrency,
+              isForReverse: true);
+        },
+        closeIconPressed: () {
+          exchangeController.updateFix();
+          exchangeController.isFirstTyping = true.obs;
+          exchangeController.updateExchange(
+            source: exchangeController.sourceCurrency,
+            destination: exchangeController.destinationCurrency,
+          );
+        },
+      );
 
+  Widget buildReverseButton() => ReversedButton(onTap: () {
+        setState(() {
+          if (!exchangeController.destinationCurrency!.availableForSell!) {
+            Get.snackbar('توجه!',
+                ' ارز ${exchangeController.destinationCurrency!.faName} قابل فروش نیست');
+          } else {
+            if (!exchangeController.sourceCurrency!.availableForBuy!) {
+              Get.snackbar('توجه!',
+                  ' ارز ${exchangeController.sourceCurrency!.faName} قابل خرید نیست');
+            } else {
+              isSwapped ? controller.reverse() : controller.forward();
+              exchangeController.updateReversed();
+              isSwapped = !isSwapped;
+            }
+          }
+        });
+      });
   Widget buildResult(
       BuildContext context, ExchangePageController exchangeController) {
     var source = exchangeController.sourceAmount.value;
@@ -363,6 +329,56 @@ class _ExchangePageState extends State<ExchangePage>
          */
       ]),
     );
+  }
+
+  void buildFixSnakBar(BuildContext context) {
+    showModalBottomSheet(
+        isDismissible: true,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(50),
+          ),
+        ),
+        clipBehavior: Clip.antiAliasWithSaveLayer,
+        context: context,
+        builder: (builder) {
+          return Container(
+            height: Get.height * 0.3,
+            color: Theme.of(context).bottomSheetTheme.backgroundColor,
+            child: Center(
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Container(
+                      height: 5,
+                      width: 40,
+                      decoration: BoxDecoration(
+                          color: Theme.of(context).dividerTheme.color,
+                          borderRadius: BorderRadius.circular(20)),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      'این یک نرخ مورد انتظار است',
+                      style: Theme.of(context).textTheme.headline3,
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      'تغییر اکنون بهترین نرخرا برای شما در لحظه مبادله انتخاب می کند'
+                      '\n هزینه های شبکه و سایر هزینه های مبادله در نرخ گنجانده شده است'
+                      '\n ما هییچ هزنیه اضافی را تضمین نمی کنیم .',
+                      style: Theme.of(context).textTheme.headline5,
+                    ),
+                  )
+                ],
+              ),
+            ),
+          );
+        });
   }
 
   void buildHelpSnakbar(BuildContext context) {

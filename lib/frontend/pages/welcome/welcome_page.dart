@@ -140,7 +140,7 @@ class WelcomePage extends GetView<WelcomePageController> {
                               color: Theme.of(context).scaffoldBackgroundColor),
                         ),
                         onPressed: () {
-                          Get.off(DashboardBody());
+                          Get.off(() => DashboardBody());
                         },
                       ),
                     ),

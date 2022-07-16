@@ -13,7 +13,7 @@ class SupportPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.end,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Center(
@@ -52,10 +52,11 @@ class _ChatPageState extends State<ChatPage>
 
     _controller = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 300));
-    _animation = Tween(begin: 300.0, end: 50.0).animate(_controller)
-      ..addListener(() {
-        setState(() {});
-      });
+    _animation =
+        Tween(begin: Get.height * 0.75, end: 220.0).animate(_controller)
+          ..addListener(() {
+            setState(() {});
+          });
     _focusNode.addListener(() {
       if (_focusNode.hasFocus) {
         _controller.forward();
@@ -75,38 +76,41 @@ class _ChatPageState extends State<ChatPage>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        elevation: 0.0,
-        title: const SizedBox(
-          height: 40,
-          width: 40,
-          child: AspectRatio(
-            aspectRatio: 1 / 0.5,
-            child: Image(
-              image: AssetImage('assets/images/logo.png'),
+    return GestureDetector(
+      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+      child: Scaffold(
+        resizeToAvoidBottomInset: false,
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          elevation: 0.0,
+          title: const SizedBox(
+            height: 40,
+            width: 40,
+            child: AspectRatio(
+              aspectRatio: 1 / 0.5,
+              child: Image(
+                image: AssetImage('assets/images/logo.png'),
+              ),
             ),
           ),
+          actions: const [
+            ToggleSwitchButton(),
+          ],
         ),
-        actions: const [
-          ToggleSwitchButton(),
-        ],
-      ),
-      body: Column(
-        children: [
-          Center(
-            child: Text(
-              'در حال توسعه ...',
-              style: Theme.of(context).textTheme.headline3,
+        body: Column(
+          children: [
+            Center(
+              child: Text(
+                'در حال توسعه ...',
+                style: Theme.of(context).textTheme.headline3,
+              ),
             ),
-          ),
-          SizedBox(height: _animation.value),
-          buildCaht(
-            context,
-          ),
-        ],
+            SizedBox(height: _animation.value),
+            buildCaht(
+              context,
+            ),
+          ],
+        ),
       ),
     );
   }

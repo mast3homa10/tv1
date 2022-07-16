@@ -1,13 +1,12 @@
 import 'dart:io';
 import 'dart:async';
 import 'dart:developer';
-import 'package:custom_timer/custom_timer.dart';
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
 import 'package:persian_number_utility/persian_number_utility.dart';
-import 'package:tv1/constants.dart';
 
+import '../../../constants.dart';
 import '../../../backend/api/init_table.dart';
 import '../../../backend/api/get_exchange_rate.dart';
 import '../../../backend/api/check_pair_be_vaild.dart';
@@ -21,35 +20,15 @@ import '../../../backend/models/init_tabel_model.dart';
 class ExchangePageController extends GetxController {
   TextEditingController sourceTextController = TextEditingController();
   TextEditingController destinationTextController = TextEditingController();
-  var isFirstTyping = false.obs;
-  var isSecondTyping = false.obs;
-  var mainAddress = ''.obs;
-  var supportAddress = ''.obs;
 
-  RxBool isConnectToNetwork = false.obs;
-  RxBool isTrying = false.obs;
-  RxBool isFixedPressed = false.obs;
-  RxBool isReversed = false.obs;
-  var searchItem = 0.obs;
-
+  var sourceAmount = 0.0.obs;
+  var destinationAmount = 0.0.obs;
   var maximumExchangeAmount = 0.0.obs;
   var minimumExchangeAmount = 0.0.obs;
-  CurrencyModel? sourceCurrency;
-  var sourceAmount = 0.0.obs;
-  CurrencyModel? destinationCurrency;
-  var destinationAmount = 0.0.obs;
-  List<CurrencyModel>? forSellList;
-  List<CurrencyModel>? forBuyList;
-  List<CurrencyModel>? currencyList = [];
+
   CheckPairBeVaildModel? pairBeValid;
   GetExchangeRateModel? exchangeRate;
-  InitTabelModel? estimate;
   EstimateExchangeAmountModel? estimateAmount;
-  var pairBeValidType = ''.obs;
-
-  var time = 0.obs;
-
-  final CustomTimerController timerController = CustomTimerController();
 
   @override
   void onInit() {
@@ -60,6 +39,8 @@ class ExchangePageController extends GetxController {
   late Timer sendOnStoppedTyping = Timer(const Duration(milliseconds: 800),
       () => log('request on stopped typing'));
 
+  var isFirstTyping = false.obs;
+  var isSecondTyping = false.obs;
 // use ""firstOnChange"" & ""secondOnChange"" to send request after stop typing
   firstOnChange(value) {
     isFirstTyping = true.obs;
@@ -87,6 +68,8 @@ class ExchangePageController extends GetxController {
     update();
   }
 
+  RxBool isConnectToNetwork = false.obs;
+  RxBool isTrying = false.obs;
   //check connection to network with "checkConnection" function.
   checkConnection() async {
     try {
@@ -116,6 +99,8 @@ class ExchangePageController extends GetxController {
     }
   }
 
+  CurrencyModel? sourceCurrency;
+  CurrencyModel? destinationCurrency;
   updateCurrencyChoice(
       {required CurrencyModel currency,
       var isForReverse = false,
@@ -133,11 +118,13 @@ class ExchangePageController extends GetxController {
     update();
   }
 
+  var searchItem = 0.obs;
   updateSearchItem(int index) {
     searchItem = index.obs;
     update();
   }
 
+  RxBool isReversed = false.obs;
 // "updateReversed" change source with destination currency.
   updateReversed() {
     isReversed = isReversed.value ? false.obs : true.obs;
@@ -150,13 +137,17 @@ class ExchangePageController extends GetxController {
     message(title: 'is reversed', content: isReversed.value);
   }
 
+  InitTabelModel? initEstimate;
+  List<CurrencyModel>? forSellList;
+  List<CurrencyModel>? forBuyList;
+  List<CurrencyModel>? currencyList = [];
 // "_initTable" is for get currency list and default currecnys (estimate)
   _initTable() async {
     var initTableData = await InitTableApi().initTable();
-    estimate = initTableData!['estimate'] ?? [];
-    sourceAmount = estimate!.sourceAmount!.obs;
+    initEstimate = initTableData!['estimate'] ?? [];
+    sourceAmount = initEstimate!.sourceAmount!.obs;
     sourceTextController.text = kPersianDigit(sourceAmount);
-    destinationAmount = estimate!.destinationAmount!.obs;
+    destinationAmount = initEstimate!.destinationAmount!.obs;
     destinationTextController.text = kPersianDigit(destinationAmount);
     // save currencys in "currnecylist".
     currencyList = initTableData['list'] ?? {};
@@ -194,7 +185,7 @@ class ExchangePageController extends GetxController {
       destinationCurrency: currencyForBuy.symbol,
     );
     bool isFixed = pairBeValid!.type!['fix'];
-    log('is fix : $isFixed');
+    message(title: 'is fix ', content: '$isFixed');
     message(title: 'pair be vaild ', content: pairBeValid!);
 
     if (!pairBeValid!.type!['fix'] && !pairBeValid!.type!['not-fix']) {
@@ -357,12 +348,12 @@ class ExchangePageController extends GetxController {
     }
     message(title: 'Estimate amount', content: estimateAmount);
     if (estimateAmount!.validUntil != '') {
-      log("${estimateAmount!.validUntil}");
+      message(title: 'valid Until ', content: "${estimateAmount!.validUntil}");
       DateTime date1 = DateTime.now();
       DateTime date2 = DateTime.parse(estimateAmount!.validUntil!);
-      time = date2.difference(date1).inSeconds.obs;
+      var time = date2.difference(date1).inSeconds.obs;
 
-      log('time : $time');
+      message(title: 'time ', content: ' $time');
     }
     if (isFirstTyping.value) {
       isFirstTyping = false.obs;
@@ -374,9 +365,12 @@ class ExchangePageController extends GetxController {
       sourceTextController.text = kPersianDigit(sourceAmount);
     }
 
-    message(title: 'forSellAmount ', content: sourceAmount);
     message(
-        title: 'estimate amount ', content: estimateAmount!.destinationAmount);
+        title: 'for sell amount(source) ',
+        content: estimateAmount!.sourceAmount);
+    message(
+        title: 'for buy amount(destination) ',
+        content: estimateAmount!.destinationAmount);
     update();
   }
 
@@ -388,6 +382,7 @@ class ExchangePageController extends GetxController {
     update();
   }
 
+  RxBool isFixedPressed = false.obs;
 // for dispaly lock icon (fix) or not.
   updateFix() {
     isFixedPressed = isFixedPressed.value ? false.obs : true.obs;

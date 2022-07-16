@@ -5,7 +5,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ThemeProvider extends ChangeNotifier {
-  ThemeMode _themeMode = ThemeMode.system;
+  ThemeMode _themeMode = ThemeMode.dark;
 
   ThemeProvider(String isDarkThemeOn) {
     _themeMode = isDarkThemeOn == 'dark' ? ThemeMode.dark : ThemeMode.light;

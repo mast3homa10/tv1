@@ -8,7 +8,7 @@ import 'package:tv1/frontend/pages/dashboard/dashboard_body.dart';
 
 import '../../../../backend/api/get_transaction_status.dart';
 import '../../../../backend/models/get_transaction_status_model.dart';
-import '../../../../frontend/pages/address_page.dart/address_page_controller.dart';
+import '../../../../frontend/pages/address/address_page_controller.dart';
 import '../../exchange/exchange_page_controller.dart';
 import '../steps_page_controller.dart';
 

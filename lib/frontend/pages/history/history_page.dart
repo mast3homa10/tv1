@@ -188,6 +188,18 @@ class HistoryPage extends StatelessWidget {
         ],
       );
 
+  List<String> menuItems = [
+    'تازه ها',
+    'در انتظار پرداخت',
+    'تایید',
+    'در حال ارسال',
+    'تکمیل شده',
+    'شکست',
+    'بازگردانی شد',
+    'در حال تایید',
+    'منقضی شده',
+    'همه',
+  ];
   void buildMenuSnakBar(BuildContext context) {
     showModalBottomSheet(
         isDismissible: true,
@@ -200,13 +212,13 @@ class HistoryPage extends StatelessWidget {
         context: context,
         builder: (builder) {
           return Container(
-            height: Get.height * 0.3,
+            height: Get.height * 0.7,
             color: Theme.of(context).bottomSheetTheme.backgroundColor,
             child: Center(
               child: Column(
                 children: [
                   Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: const EdgeInsets.all(15.0),
                     child: Container(
                       height: 5,
                       width: 40,
@@ -215,22 +227,39 @@ class HistoryPage extends StatelessWidget {
                           borderRadius: BorderRadius.circular(20)),
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      'این یک نرخ مورد انتظار است',
-                      style: Theme.of(context).textTheme.headline3,
+                  Expanded(
+                    child: SizedBox(
+                      height: 200,
+                      child: GridView.builder(
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                                  childAspectRatio: 16 / 4.8,
+                                  crossAxisCount: 2),
+                          itemCount: menuItems.length,
+                          itemBuilder: ((context, index) => Row(
+                                children: [
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(
+                                          left: 4.0, right: 4.0),
+                                      child: TextButton(
+                                        onPressed: () {
+                                          Get.snackbar(
+                                              'توجه!', 'در حال توسعه ...');
+                                        },
+                                        child: Text(
+                                          menuItems[index],
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .headline4,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ))),
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      'تغییر اکنون بهترین نرخرا برای شما در لحظه مبادله انتخاب می کند'
-                      '\n هزینه های شبکه و سایر هزینه های مبادله در نرخ گنجانده شده است'
-                      '\n ما هییچ هزنیه اضافی را تضمین نمی کنیم .',
-                      style: Theme.of(context).textTheme.headline5,
-                    ),
-                  )
                 ],
               ),
             ),

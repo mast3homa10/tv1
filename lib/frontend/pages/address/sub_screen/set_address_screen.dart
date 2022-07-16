@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../../frontend/components/custom_small_button.dart';
-import '../../../../frontend/pages/address_page.dart/address_page_controller.dart';
+import '../../../../frontend/pages/address/address_page_controller.dart';
 import '../../exchange/exchange_page_controller.dart';
 import '../../../components/address_box.dart';
 import '../../../../enums.dart';

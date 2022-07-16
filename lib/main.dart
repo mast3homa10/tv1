@@ -27,6 +27,7 @@ void main() async {
           final themeProvider = Provider.of<ThemeProvider>(context);
           return GetMaterialApp(
             themeMode: themeProvider.theme,
+            debugShowCheckedModeBanner: false,
             theme: MyThemes.lightTheme,
             darkTheme: MyThemes.darkTheme,
             locale: const Locale('fa', 'IR'),

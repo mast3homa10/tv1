@@ -5,8 +5,8 @@ import 'package:get/get_instance/src/extension_instance.dart';
 import 'package:get/route_manager.dart';
 import 'package:clipboard/clipboard.dart';
 
-import '../../frontend/pages/address_page.dart/address_page_controller.dart';
-import '../pages/address_page.dart/sub_screen/qr_code_screen.dart';
+import '../../frontend/pages/address/address_page_controller.dart';
+import '../pages/address/sub_screen/qr_code_screen.dart';
 import '../pages/exchange/exchange_page_controller.dart';
 
 class AddressBox extends StatefulWidget {
@@ -136,9 +136,9 @@ class _AddressBoxState extends State<AddressBox> {
               child: IconButton(
                 icon: const Icon(FontAwesomeIcons.qrcode),
                 onPressed: () {
-                  Get.to(QRCodeScreen(
-                    boxId: widget.boxId,
-                  ));
+                  Get.to(() => QRCodeScreen(
+                        boxId: widget.boxId,
+                      ));
                 },
               ),
             )
