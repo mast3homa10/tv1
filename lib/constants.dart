@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:persian_number_utility/persian_number_utility.dart';
 
 import 'frontend/components/toggle_switch_button.dart';
 
@@ -55,7 +54,8 @@ AppBar kAppbar = AppBar(
 
 String kPersianDigit(var digit) {
   String num = digit.toString();
-  return num.toPersianDigit();
+  // return num.toPersianDigit();
+  return num;
 }
 
 const kSpinkit = SpinKitRotatingCircle(

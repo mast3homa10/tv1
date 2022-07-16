@@ -90,10 +90,8 @@ class AddAddress extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        child: const Center(child: Text('test')),
-      ),
+    return const Scaffold(
+      body: Center(child: Text('test')),
     );
   }
 }

@@ -30,9 +30,13 @@ class ExchangePageController extends GetxController {
   GetExchangeRateModel? exchangeRate;
   EstimateExchangeAmountModel? estimateAmount;
 
+  var isSourceHasLimitation = false.obs;
+  var isDestanitionHasLimitation = false.obs;
+  var amount = 0.0.obs;
   @override
   void onInit() {
     checkConnection();
+
     super.onInit();
   }
 
@@ -44,6 +48,7 @@ class ExchangePageController extends GetxController {
 // use ""firstOnChange"" & ""secondOnChange"" to send request after stop typing
   firstOnChange(value) {
     isFirstTyping = true.obs;
+
     const duration = Duration(milliseconds: 600);
     sendOnStoppedTyping.cancel();
     sendOnStoppedTyping = Timer(
@@ -57,6 +62,7 @@ class ExchangePageController extends GetxController {
 
   secondOnChange(value) {
     isSecondTyping = true.obs;
+    isFixedPressed = true.obs;
     const duration = Duration(milliseconds: 600);
     sendOnStoppedTyping.cancel();
     sendOnStoppedTyping = Timer(
@@ -124,17 +130,20 @@ class ExchangePageController extends GetxController {
     update();
   }
 
-  RxBool isReversed = false.obs;
+  RxBool isSwaped = false.obs;
 // "updateReversed" change source with destination currency.
-  updateReversed() {
-    isReversed = isReversed.value ? false.obs : true.obs;
-    if (isReversed.value) {
+  updateSwap() {
+    isSwaped = isSwaped.value ? false.obs : true.obs;
+    if (isSwaped.value) {
+      isFirstTyping = true.obs;
       updateExchange(source: destinationCurrency, destination: sourceCurrency);
     } else {
+      isFirstTyping = true.obs;
+
       updateExchange(source: sourceCurrency, destination: destinationCurrency);
     }
     update();
-    message(title: 'is reversed', content: isReversed.value);
+    message(title: 'is Swaped', content: isSwaped.value);
   }
 
   InitTabelModel? initEstimate;
@@ -261,17 +270,19 @@ class ExchangePageController extends GetxController {
                 : exchangeRate!.maximumExchangeAmount!)
         .obs;
 
+    message(title: 'minimumExchangeAmount ', content: minimumExchangeAmount);
+    message(title: 'maximumExchangeAmount ', content: maximumExchangeAmount);
     message(title: 'get exchange rate ', content: exchangeRate);
-    double amount = 0;
 
-    amount = isForReverse
+    double a = isForReverse
         ? double.parse(destinationTextController.text.toEnglishDigit())
         : double.parse(sourceTextController.text.toEnglishDigit());
+    amount = a.obs;
     var currencyName =
         isForReverse ? destinationCurrency!.faName : sourceCurrency!.faName;
 
     if (amount < minimumExchangeAmount.value) {
-      Get.defaultDialog(
+      /*  Get.defaultDialog(
           title: 'توجه!',
           content: Text(
               'مقدار $currencyName وارد شده کمتر از مقدار مجاز میباشد.'
@@ -288,20 +299,36 @@ class ExchangePageController extends GetxController {
             }
             return true;
           });
+      */
+      if (isForReverse) {
+        isDestanitionHasLimitation = true.obs;
+      } else {
+        isSourceHasLimitation = true.obs;
+      }
+      update();
       destinationTextController.text = '';
     } else if (amount > maximumExchangeAmount.value &&
         maximumExchangeAmount.value > 0) {
-      Get.defaultDialog(
+      if (isForReverse) {
+        isDestanitionHasLimitation = true.obs;
+      } else {
+        isSourceHasLimitation = true.obs;
+      }
+
+      update();
+      /* Get.defaultDialog(
           title: 'توجه!',
-          content: Text('مقدار $currencyName شده بیشتر از مقدار مجاز میباشد.'
+          content: Text(
+              'مقدار $currencyName وارد شده بیشتر از مقدار مجاز میباشد.'
               '\nبیشترین مقدار مجاز : ${kPersianDigit(maximumExchangeAmount.value)}'));
+    */
     } else {
       if (isForReverse) {
         _estimateAmount(
             currencyForSell: currencyForSell,
             currencyForBuy: currencyForBuy,
             type: 'fix',
-            amount: amount,
+            amount: amount.value,
             isForReverse: isForReverse,
             directionOfExchangeFlow: 'reverse');
       } else {
@@ -309,7 +336,7 @@ class ExchangePageController extends GetxController {
             currencyForSell: currencyForSell,
             currencyForBuy: currencyForBuy,
             type: type,
-            amount: amount,
+            amount: amount.value,
             isForReverse: isForReverse,
             directionOfExchangeFlow: 'direct');
       }

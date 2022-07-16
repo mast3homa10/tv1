@@ -5,9 +5,8 @@ import 'package:get/get.dart';
 import '../../components/custom_small_button.dart';
 import '../guide/guide_page.dart';
 import '../dashboard/dashboard_body.dart';
-import 'welcome_page_controller.dart';
 
-class WelcomePage extends GetView<WelcomePageController> {
+class WelcomePage extends StatelessWidget {
   const WelcomePage({Key? key}) : super(key: key);
 
   @override

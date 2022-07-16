@@ -8,7 +8,7 @@ typedef RenderErrorCallback = Widget Function([dynamic error]);
 typedef RenderSuccessCallback = Widget Function({dynamic data});
 typedef InitStateCallback = Future<Object> Function();
 
-enum LoadingState { Error, Loading, Success }
+enum LoadingState { error, loading, success }
 
 class AsyncLoader extends StatefulWidget {
   final RenderLoadCallback renderLoad;
@@ -29,7 +29,7 @@ class AsyncLoader extends StatefulWidget {
 }
 
 class AsyncLoaderState extends State<AsyncLoader> {
-  var _loadingState = LoadingState.Loading;
+  var _loadingState = LoadingState.loading;
   dynamic _data;
   dynamic _error;
 
@@ -47,7 +47,7 @@ class AsyncLoaderState extends State<AsyncLoader> {
     if (!mounted) return;
 
     setState(() {
-      _loadingState = LoadingState.Loading;
+      _loadingState = LoadingState.loading;
     });
 
     try {
@@ -57,22 +57,22 @@ class AsyncLoaderState extends State<AsyncLoader> {
 
       setState(() {
         _data = data;
-        _loadingState = LoadingState.Success;
+        _loadingState = LoadingState.success;
       });
     } catch (e) {
       log('$e');
       setState(() {
         _error = e;
         _data = null;
-        _loadingState = LoadingState.Error;
+        _loadingState = LoadingState.error;
       });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_loadingState == LoadingState.Loading) return widget.renderLoad();
-    if (_loadingState == LoadingState.Error) return widget.renderError(_error);
+    if (_loadingState == LoadingState.loading) return widget.renderLoad();
+    if (_loadingState == LoadingState.error) return widget.renderError(_error);
 
     return widget.renderSuccess(data: _data);
   }

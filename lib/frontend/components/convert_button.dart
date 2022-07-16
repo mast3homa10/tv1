@@ -4,8 +4,8 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../constants.dart';
 
-class ReversedButton extends StatelessWidget {
-  const ReversedButton({
+class SwapButton extends StatelessWidget {
+  const SwapButton({
     Key? key,
     this.onTap,
   }) : super(key: key);

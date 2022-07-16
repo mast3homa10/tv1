@@ -10,7 +10,6 @@ import '../../../frontend/components/custom_big_button.dart';
 import '../../../frontend/components/custom_search_delegate.dart';
 import '../../../frontend/components/timer/timer_controller.dart';
 import '../../../frontend/pages/address/address_page.dart';
-import '../welcome/welcome_page_controller.dart';
 import 'exchange_page_controller.dart';
 
 class ExchangePage extends StatefulWidget {
@@ -25,6 +24,7 @@ class _ExchangePageState extends State<ExchangePage>
   final double widgetATop = 0;
   final double widgetBTop = 180;
   bool isSwapped = false;
+  bool isMassegeShow = false;
 
   late AnimationController controller;
   late Animation<double> addressAnimation;
@@ -60,7 +60,6 @@ class _ExchangePageState extends State<ExchangePage>
   final timerController = Get.put(TimerController());
 
   final exchangeController = Get.put(ExchangePageController());
-  final welcomeController = Get.put(WelcomePageController());
 
   @override
   Widget build(BuildContext context) {
@@ -70,12 +69,17 @@ class _ExchangePageState extends State<ExchangePage>
       builder: (exchangeController) {
         try {
           return GestureDetector(
-            onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+            onTap: () {
+              exchangeController.isSourceHasLimitation = false.obs;
+              exchangeController.isDestanitionHasLimitation = false.obs;
+              exchangeController.update();
+              FocusManager.instance.primaryFocus?.unfocus();
+            },
             child: Scaffold(
               resizeToAvoidBottomInset: false,
-              body: welcomeController.isTrying.value
+              body: exchangeController.isTrying.value
                   ? kSpinkit
-                  : !welcomeController.isConnectToNetwork.value
+                  : !exchangeController.isConnectToNetwork.value
                       ? TryAgainButton()
                       : Column(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -92,7 +96,9 @@ class _ExchangePageState extends State<ExchangePage>
                                         top: widgetATop + tweenValue,
                                         width: Get.width,
                                         child: buildFirstBox()),
-                                    // exchange result & reverse button
+
+                                    // exchange result & swap button
+
                                     Positioned(
                                       top: 110,
                                       width: Get.width,
@@ -107,16 +113,39 @@ class _ExchangePageState extends State<ExchangePage>
                                                 context, exchangeController),
 
                                             // Reversed button
-                                            buildReverseButton(),
+                                            buildSwapButton(),
                                           ],
                                         ),
                                       ),
                                     ),
+                                    if ((isSwapped
+                                        ? exchangeController
+                                            .isDestanitionHasLimitation.value
+                                        : exchangeController
+                                            .isSourceHasLimitation.value))
+                                      Positioned(
+                                          top: (widgetATop + 75) + tweenValue,
+                                          width: Get.width,
+                                          child: isSwapped
+                                              ? buildHintBox(isforReverse: true)
+                                              : buildHintBox()),
                                     // for buy box
                                     Positioned(
                                         top: widgetBTop - tweenValue,
                                         width: Get.width,
                                         child: buildSecondBox()),
+                                    if ((isSwapped
+                                        ? exchangeController
+                                            .isSourceHasLimitation.value
+                                        : exchangeController
+                                            .isDestanitionHasLimitation.value))
+                                      Positioned(
+                                          top: (widgetBTop + 75) - tweenValue,
+                                          width: Get.width,
+                                          child: isSwapped
+                                              ? buildSecondHintBox()
+                                              : buildSecondHintBox(
+                                                  isforReverse: true)),
                                   ],
                                 ),
                               ),
@@ -149,15 +178,15 @@ class _ExchangePageState extends State<ExchangePage>
   }
 
   Widget buildFirstBox() => ExchangeBox(
-        isHaveIcon: exchangeController.isReversed.value ? true : false,
+        isHaveIcon: exchangeController.isSwaped.value ? true : false,
         isIconChange: exchangeController.isFixedPressed.value,
-        textController: exchangeController.isReversed.value
+        textController: exchangeController.isSwaped.value
             ? exchangeController.destinationTextController
             : exchangeController.sourceTextController,
         currency: exchangeController.sourceCurrency,
         onPressed: () {
           // launch searchbox by tap here
-          if (exchangeController.isReversed.value) {
+          if (exchangeController.isSwaped.value) {
             showSearch(
                 context: context,
                 delegate: CustomSearchDelegate(currentBox: 1));
@@ -172,29 +201,29 @@ class _ExchangePageState extends State<ExchangePage>
           exchangeController.updateFix();
           exchangeController.isSecondTyping = true.obs;
           exchangeController.updateExchange(
-              source: exchangeController.sourceCurrency,
-              destination: exchangeController.destinationCurrency,
+              source: exchangeController.destinationCurrency,
+              destination: exchangeController.sourceCurrency,
               isForReverse: true);
         },
         closeIconPressed: () {
           exchangeController.updateFix();
           exchangeController.isFirstTyping = true.obs;
           exchangeController.updateExchange(
-            source: exchangeController.sourceCurrency,
-            destination: exchangeController.destinationCurrency,
+            source: exchangeController.destinationCurrency,
+            destination: exchangeController.sourceCurrency,
           );
         },
       );
   Widget buildSecondBox() => ExchangeBox.second(
-        isHaveIcon: exchangeController.isReversed.value ? false : true,
+        isHaveIcon: exchangeController.isSwaped.value ? false : true,
         isIconChange: exchangeController.isFixedPressed.value,
-        textController: exchangeController.isReversed.value
+        textController: exchangeController.isSwaped.value
             ? exchangeController.sourceTextController
             : exchangeController.destinationTextController,
         currency: exchangeController.destinationCurrency,
         onPressed: () {
           // launch searchbox by tap here
-          if (exchangeController.isReversed.value) {
+          if (exchangeController.isSwaped.value) {
             showSearch(
                 context: context,
                 delegate: CustomSearchDelegate(currentBox: 0));
@@ -225,7 +254,7 @@ class _ExchangePageState extends State<ExchangePage>
         },
       );
 
-  Widget buildReverseButton() => ReversedButton(onTap: () {
+  Widget buildSwapButton() => SwapButton(onTap: () {
         setState(() {
           if (!exchangeController.destinationCurrency!.availableForSell!) {
             Get.snackbar('توجه!',
@@ -236,12 +265,14 @@ class _ExchangePageState extends State<ExchangePage>
                   ' ارز ${exchangeController.sourceCurrency!.faName} قابل خرید نیست');
             } else {
               isSwapped ? controller.reverse() : controller.forward();
-              exchangeController.updateReversed();
+              exchangeController.updateSwap();
               isSwapped = !isSwapped;
+              isMassegeShow = !isMassegeShow;
             }
           }
         });
       });
+
   Widget buildResult(
       BuildContext context, ExchangePageController exchangeController) {
     var source = exchangeController.sourceAmount.value;
@@ -330,6 +361,204 @@ class _ExchangePageState extends State<ExchangePage>
       ]),
     );
   }
+
+  Widget buildHintBox({bool isforReverse = false}) => GestureDetector(
+        onTap: () {},
+        child: Container(
+          decoration: const BoxDecoration(
+            color: Colors.red,
+            borderRadius: BorderRadius.only(
+                bottomRight: Radius.circular(20.0),
+                bottomLeft: Radius.circular(20.0)),
+          ),
+          padding: const EdgeInsets.all(8.0),
+          margin: const EdgeInsets.all(8.0),
+          height: 70,
+          child: Column(
+            children: [
+              if (exchangeController.minimumExchangeAmount.value >
+                  exchangeController.amount.value)
+                Row(
+                  children: [
+                    Text(
+                      'کمترین مقدار قابل مبادله ',
+                      style: Theme.of(context)
+                          .textTheme
+                          .headline4!
+                          .copyWith(color: Colors.black),
+                    ),
+                    Text(
+                      '${exchangeController.sourceCurrency!.symbol!.toUpperCase()}'
+                      ':',
+                      style: Theme.of(context)
+                          .textTheme
+                          .headline4!
+                          .copyWith(color: Colors.black),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        exchangeController.sourceTextController.text =
+                            kPersianDigit(
+                                exchangeController.minimumExchangeAmount.value);
+                        exchangeController.firstOnChange(
+                            exchangeController.sourceTextController.text);
+                        exchangeController.isSourceHasLimitation = false.obs;
+                        exchangeController.isDestanitionHasLimitation =
+                            false.obs;
+                        exchangeController.update();
+                      },
+                      style: ButtonStyle(
+                          side: MaterialStateProperty.all<BorderSide?>(
+                              const BorderSide(color: Colors.red, width: 0))),
+                      child: Text(
+                          ' ${exchangeController.exchangeRate!.minimumExchangeAmount!}',
+                          style:
+                              Theme.of(context).textTheme.headline4!.copyWith(
+                                    color: Colors.black,
+                                    decoration: TextDecoration.underline,
+                                  )),
+                    ),
+                  ],
+                ),
+            ],
+          ),
+        ),
+      );
+  Widget buildSecondHintBox({bool isforReverse = false}) => GestureDetector(
+        onTap: () {},
+        child: Container(
+          decoration: const BoxDecoration(
+            color: Colors.red,
+            borderRadius: BorderRadius.only(
+                bottomRight: Radius.circular(20.0),
+                bottomLeft: Radius.circular(20.0)),
+          ),
+          padding: const EdgeInsets.all(8.0),
+          margin: const EdgeInsets.all(8.0),
+          height: 100,
+          child: Column(
+            children: [
+              if (exchangeController.minimumExchangeAmount.value >
+                  exchangeController.amount.value)
+                Row(
+                  children: [
+                    Text(
+                      'کمترین مقدار قابل مبادله ',
+                      style: Theme.of(context)
+                          .textTheme
+                          .headline4!
+                          .copyWith(color: Colors.black),
+                    ),
+                    Text(
+                      '${exchangeController.destinationCurrency!.symbol!.toUpperCase()}'
+                      ':',
+                      style: Theme.of(context)
+                          .textTheme
+                          .headline4!
+                          .copyWith(color: Colors.black),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        if (isSwapped) {
+                          exchangeController.sourceTextController.text =
+                              kPersianDigit(exchangeController
+                                  .minimumExchangeAmount.value);
+                          exchangeController.firstOnChange(
+                              exchangeController.sourceTextController.text);
+                        } else {
+                          exchangeController.destinationTextController.text =
+                              kPersianDigit(exchangeController
+                                  .minimumExchangeAmount.value);
+                          exchangeController.secondOnChange(exchangeController
+                              .destinationTextController.text);
+                        }
+                        exchangeController.isSourceHasLimitation = false.obs;
+                        exchangeController.isDestanitionHasLimitation =
+                            false.obs;
+                        exchangeController.update();
+                      },
+                      style: ButtonStyle(
+                          side: MaterialStateProperty.all<BorderSide?>(
+                              const BorderSide(color: Colors.red, width: 0))),
+                      child: Text(
+                          ' ${exchangeController.minimumExchangeAmount}',
+                          style:
+                              Theme.of(context).textTheme.headline4!.copyWith(
+                                    color: Colors.black,
+                                    decoration: TextDecoration.underline,
+                                  )),
+                    ),
+                  ],
+                ),
+              if (exchangeController.maximumExchangeAmount.value <
+                  exchangeController.amount.value)
+                Column(
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          'بیشترین مقدار قابل مبادله ',
+                          style: Theme.of(context)
+                              .textTheme
+                              .headline4!
+                              .copyWith(color: Colors.black),
+                        ),
+                        Text(
+                          '${isSwapped ? exchangeController.sourceCurrency!.symbol!.toUpperCase() : exchangeController.destinationCurrency!.symbol!.toUpperCase()}'
+                          ':',
+                          style: Theme.of(context)
+                              .textTheme
+                              .headline4!
+                              .copyWith(color: Colors.black),
+                        ),
+                        Text(
+                            ' ${exchangeController.exchangeRate!.maximumExchangeAmount!}',
+                            style:
+                                Theme.of(context).textTheme.headline4!.copyWith(
+                                      color: Colors.black,
+                                    )),
+                      ],
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        if (isSwapped) {
+                          exchangeController.destinationTextController.text =
+                              kPersianDigit(exchangeController
+                                  .minimumExchangeAmount.value);
+                          exchangeController.secondOnChange(exchangeController
+                              .destinationTextController.text);
+                        }
+                        {
+                          exchangeController.sourceTextController.text =
+                              kPersianDigit(exchangeController
+                                  .minimumExchangeAmount.value);
+                          exchangeController.firstOnChange(
+                            exchangeController.sourceTextController.text,
+                          );
+                        }
+
+                        exchangeController.isSecondTyping = false.obs;
+                        exchangeController.isSourceHasLimitation = false.obs;
+                        exchangeController.isDestanitionHasLimitation =
+                            false.obs;
+                        exchangeController.update();
+                      },
+                      style: ButtonStyle(
+                          side: MaterialStateProperty.all<BorderSide?>(
+                              const BorderSide(color: Colors.red, width: 0))),
+                      child: Text('معامله با نرخ شناور',
+                          style:
+                              Theme.of(context).textTheme.headline4!.copyWith(
+                                    color: Colors.black,
+                                    decoration: TextDecoration.underline,
+                                  )),
+                    ),
+                  ],
+                ),
+            ],
+          ),
+        ),
+      );
 
   void buildFixSnakBar(BuildContext context) {
     showModalBottomSheet(

@@ -16,7 +16,7 @@ class DashboardBodyController extends GetxController {
   final screens = [
     const MenuPage(),
     const SupportPage(),
-    ExchangePage(),
+    const ExchangePage(),
     HistoryPage(),
   ];
   changeScreen() {

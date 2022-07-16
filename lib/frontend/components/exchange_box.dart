@@ -12,6 +12,15 @@ import '../../backend/network_constants.dart';
 import '../../constants.dart';
 
 class ExchangeBox extends StatelessWidget {
+  final int boxId;
+  final TextEditingController? textController;
+  final CurrencyModel? currency;
+  final String? initialValue;
+  final bool isHaveIcon;
+  final bool isIconChange;
+  final VoidCallback? openIconPressed;
+  final VoidCallback? closeIconPressed;
+  final VoidCallback? onPressed;
   ExchangeBox({
     Key? key,
     this.boxId = 0,
@@ -24,15 +33,6 @@ class ExchangeBox extends StatelessWidget {
     this.openIconPressed,
     this.closeIconPressed,
   }) : super(key: key);
-  final int boxId;
-  final TextEditingController? textController;
-  final CurrencyModel? currency;
-  final String? initialValue;
-  final bool isHaveIcon;
-  final bool isIconChange;
-  final VoidCallback? openIconPressed;
-  final VoidCallback? closeIconPressed;
-  final VoidCallback? onPressed;
 
   ExchangeBox.second({
     Key? key,
@@ -46,6 +46,7 @@ class ExchangeBox extends StatelessWidget {
     this.openIconPressed,
     this.closeIconPressed,
   }) : super(key: key);
+
   final controller = Get.put(ExchangePageController());
 
   @override
@@ -67,11 +68,11 @@ class ExchangeBox extends StatelessWidget {
       child: Center(
           child: Row(
         children: [
+          // start search page by click the following text button
           SizedBox(
             width: Get.width * 0.35,
             child: Column(
               children: [
-                // start search page by click the following text button
                 Expanded(
                   flex: 2,
                   child: Container(
@@ -101,7 +102,6 @@ class ExchangeBox extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           // image part
-
                           Row(
                             children: [
                               if (currency!.symbol!.length < 8)
@@ -156,6 +156,7 @@ class ExchangeBox extends StatelessWidget {
               ],
             ),
           ),
+
           const VerticalDivider(
             width: 2.0,
             thickness: 1.0,
@@ -180,19 +181,24 @@ class ExchangeBox extends StatelessWidget {
           BuildContext context, ExchangePageController controller) =>
       Padding(
           padding: const EdgeInsets.all(10.0),
-          child: controller.isSecondTyping.value
+          child: (controller.isSwaped.value
+                  ? controller.isFirstTyping.value
+                  : controller.isSecondTyping.value)
               ? GestureDetector(
                   onTap: () {
-                    controller.isSecondTyping = false.obs;
-                    controller.sourceTextController.text = '';
+                    if (controller.isSwaped.value) {
+                      controller.isFirstTyping = false.obs;
+                      controller.destinationTextController.text = '';
+                    } else {
+                      controller.isSecondTyping = false.obs;
+                      controller.sourceTextController.text = '';
+                    }
 
                     controller.update();
                     FocusManager.instance.primaryFocus?.unfocus();
                   },
                   child: Container(
-                      padding: const EdgeInsets.only(
-                          left: 80.0, right: 80.0, top: 25.0, bottom: 25),
-                      child: const CircularProgressIndicator()),
+                      padding: const EdgeInsets.all(20), child: kSpinkit),
                 )
               : Form(
                   key: key,
@@ -229,24 +235,32 @@ class ExchangeBox extends StatelessWidget {
                             .headline3!
                             .copyWith(
                                 color: Theme.of(context).dividerTheme.color)),
-                    onChanged: controller.firstOnChange,
+                    onChanged: controller.isSwaped.value
+                        ? controller.secondOnChange
+                        : controller.firstOnChange,
                   ),
                 ));
   Widget buildBuyBox(BuildContext context, ExchangePageController controller) =>
       Padding(
           padding: const EdgeInsets.all(10.0),
-          child: controller.isFirstTyping.value
+          child: (controller.isSwaped.value
+                  ? controller.isSecondTyping.value
+                  : controller.isFirstTyping.value)
               ? GestureDetector(
                   onTap: () {
-                    controller.isFirstTyping = false.obs;
-                    controller.destinationTextController.text = '';
+                    if (controller.isSwaped.value) {
+                      controller.isSecondTyping = false.obs;
+                      controller.sourceTextController.text = '';
+                    } else {
+                      controller.isFirstTyping = false.obs;
+                      controller.destinationTextController.text = '';
+                    }
+
                     controller.update();
                     FocusManager.instance.primaryFocus?.unfocus();
                   },
                   child: Container(
-                      padding: const EdgeInsets.only(
-                          left: 80.0, right: 80.0, top: 25.0, bottom: 25),
-                      child: const CircularProgressIndicator()),
+                      padding: const EdgeInsets.all(20), child: kSpinkit),
                 )
               : Form(
                   key: key,
@@ -283,7 +297,9 @@ class ExchangeBox extends StatelessWidget {
                             .headline3!
                             .copyWith(
                                 color: Theme.of(context).dividerTheme.color)),
-                    onChanged: controller.secondOnChange,
+                    onChanged: controller.isSwaped.value
+                        ? controller.firstOnChange
+                        : controller.secondOnChange,
                   ),
                 ));
 

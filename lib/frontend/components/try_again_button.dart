@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
-import 'package:tv1/frontend/pages/welcome/welcome_page_controller.dart';
 
 import '../pages/exchange/exchange_page_controller.dart';
 
@@ -24,7 +23,7 @@ class TryAgainButton extends StatelessWidget {
                     width: 0,
                     color: Theme.of(context).scaffoldBackgroundColor))),
             onPressed: () {
-              WelcomePageController().checkConnection();
+              exchangeController.checkConnection();
             },
             child: Column(
               children: const [
