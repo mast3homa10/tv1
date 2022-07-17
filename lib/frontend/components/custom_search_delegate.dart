@@ -98,6 +98,8 @@ class CustomSearchDelegate extends SearchDelegate {
               .where((searchResult) {
             final String userInput = query.toLowerCase();
             final String result = (searchResult.engName ?? '').toLowerCase() +
+                (searchResult.inNetwork ?? '').toLowerCase() +
+                (searchResult.symbol ?? '').toLowerCase() +
                 (searchResult.faName ?? '').toLowerCase();
 
             return result.contains(userInput);

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:tv1/frontend/components/timer/custom_timer.dart';
 
 import '../pages/exchange/exchange_page_controller.dart';
 import '../../backend/models/currency_model.dart';
@@ -181,12 +182,12 @@ class ExchangeBox extends StatelessWidget {
           BuildContext context, ExchangePageController controller) =>
       Padding(
           padding: const EdgeInsets.all(10.0),
-          child: (controller.isSwaped.value
+          child: (controller.isSwapped.value
                   ? controller.isFirstTyping.value
                   : controller.isSecondTyping.value)
               ? GestureDetector(
                   onTap: () {
-                    if (controller.isSwaped.value) {
+                    if (controller.isSwapped.value) {
                       controller.isFirstTyping = false.obs;
                       controller.destinationTextController.text = '';
                     } else {
@@ -235,7 +236,7 @@ class ExchangeBox extends StatelessWidget {
                             .headline3!
                             .copyWith(
                                 color: Theme.of(context).dividerTheme.color)),
-                    onChanged: controller.isSwaped.value
+                    onChanged: controller.isSwapped.value
                         ? controller.secondOnChange
                         : controller.firstOnChange,
                   ),
@@ -243,12 +244,12 @@ class ExchangeBox extends StatelessWidget {
   Widget buildBuyBox(BuildContext context, ExchangePageController controller) =>
       Padding(
           padding: const EdgeInsets.all(10.0),
-          child: (controller.isSwaped.value
+          child: (controller.isSwapped.value
                   ? controller.isSecondTyping.value
                   : controller.isFirstTyping.value)
               ? GestureDetector(
                   onTap: () {
-                    if (controller.isSwaped.value) {
+                    if (controller.isSwapped.value) {
                       controller.isSecondTyping = false.obs;
                       controller.sourceTextController.text = '';
                     } else {
@@ -297,7 +298,7 @@ class ExchangeBox extends StatelessWidget {
                             .headline3!
                             .copyWith(
                                 color: Theme.of(context).dividerTheme.color)),
-                    onChanged: controller.isSwaped.value
+                    onChanged: controller.isSwapped.value
                         ? controller.firstOnChange
                         : controller.secondOnChange,
                   ),
@@ -328,22 +329,8 @@ class ExchangeBox extends StatelessWidget {
                   children: [
                     //todo: set timer for exchange box
                     if (controller.isFixedPressed.value && boxId == 1)
-                      // CustomTimer(
-                      //   exchangeController: controller,
-                      // ),
-                      // CustomTimer(
-                      //     controller: controller.timerController,
-                      //     begin: Duration(seconds: controller.time.value),
-                      //     end: const Duration(),
-                      //     builder: (time) {
-                      //       return Text(
-                      //           "${time.hours}:${time.minutes}:${time.seconds}.${time.milliseconds}",
-                      //           style: const TextStyle(fontSize: 24.0));
-                      //     }),
-                      const Icon(
-                        FontAwesomeIcons.clock,
-                        size: 10,
-                      ),
+                      const CustomTimer(),
+
                     IconButton(
                       onPressed: closeIconPressed,
                       icon: Icon(

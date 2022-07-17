@@ -33,6 +33,7 @@ class ExchangePageController extends GetxController {
   var isSourceHasLimitation = false.obs;
   var isDestanitionHasLimitation = false.obs;
   var amount = 0.0.obs;
+
   @override
   void onInit() {
     checkConnection();
@@ -53,10 +54,15 @@ class ExchangePageController extends GetxController {
     sendOnStoppedTyping.cancel();
     sendOnStoppedTyping = Timer(
         duration,
-        () => updateExchange(
-              source: sourceCurrency,
-              destination: destinationCurrency,
-            ));
+        () => isSwapped.value
+            ? updateExchange(
+                source: destinationCurrency,
+                destination: sourceCurrency,
+              )
+            : updateExchange(
+                source: sourceCurrency,
+                destination: destinationCurrency,
+              ));
     update();
   }
 
@@ -67,10 +73,15 @@ class ExchangePageController extends GetxController {
     sendOnStoppedTyping.cancel();
     sendOnStoppedTyping = Timer(
         duration,
-        () => updateExchange(
-            isForReverse: true,
-            source: sourceCurrency,
-            destination: destinationCurrency));
+        () => isSwapped.value
+            ? updateExchange(
+                isForReverse: true,
+                source: destinationCurrency,
+                destination: sourceCurrency)
+            : updateExchange(
+                isForReverse: true,
+                source: sourceCurrency,
+                destination: destinationCurrency));
     update();
   }
 
@@ -111,16 +122,36 @@ class ExchangePageController extends GetxController {
       {required CurrencyModel currency,
       var isForReverse = false,
       required int item}) {
-    if (item == 1) {
-      destinationCurrency = currency;
-      updateExchange(
-          destination: destinationCurrency,
-          source: sourceCurrency,
-          isForReverse: isForReverse);
+    if (isSwapped.value) {
+      if (item == 1) {
+        sourceCurrency = currency;
+        updateExchange(
+            destination: sourceCurrency, source: destinationCurrency);
+        isFirstTyping = true.obs;
+      } else {
+        destinationCurrency = currency;
+        updateExchange(
+            destination: sourceCurrency,
+            source: destinationCurrency,
+            isForReverse: isForReverse);
+        isFirstTyping = true.obs;
+      }
     } else {
-      sourceCurrency = currency;
-      updateExchange(destination: destinationCurrency, source: sourceCurrency);
+      if (item == 1) {
+        destinationCurrency = currency;
+        updateExchange(
+            destination: destinationCurrency,
+            source: sourceCurrency,
+            isForReverse: isForReverse);
+        isFirstTyping = true.obs;
+      } else {
+        sourceCurrency = currency;
+        updateExchange(
+            destination: destinationCurrency, source: sourceCurrency);
+        isFirstTyping = true.obs;
+      }
     }
+
     update();
   }
 
@@ -130,11 +161,11 @@ class ExchangePageController extends GetxController {
     update();
   }
 
-  RxBool isSwaped = false.obs;
+  RxBool isSwapped = false.obs;
 // "updateReversed" change source with destination currency.
   updateSwap() {
-    isSwaped = isSwaped.value ? false.obs : true.obs;
-    if (isSwaped.value) {
+    isSwapped = isSwapped.value ? false.obs : true.obs;
+    if (isSwapped.value) {
       isFirstTyping = true.obs;
       updateExchange(source: destinationCurrency, destination: sourceCurrency);
     } else {
@@ -143,7 +174,7 @@ class ExchangePageController extends GetxController {
       updateExchange(source: sourceCurrency, destination: destinationCurrency);
     }
     update();
-    message(title: 'is Swaped', content: isSwaped.value);
+    message(title: 'is Swaped', content: isSwapped.value);
   }
 
   InitTabelModel? initEstimate;
