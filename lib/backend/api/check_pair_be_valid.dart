@@ -3,7 +3,7 @@ import 'dart:developer';
 
 import 'package:http/http.dart' as http;
 
-import '../../backend/models/check_pair_be_vaild_model.dart';
+import '../../backend/models/check_pair_be_valid_model.dart';
 import '../network_constants.dart';
 
 class CheckPairBeVaildApi {

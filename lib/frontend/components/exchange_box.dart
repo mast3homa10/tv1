@@ -328,8 +328,17 @@ class ExchangeBox extends StatelessWidget {
               ? Column(
                   children: [
                     //todo: set timer for exchange box
+                    if (controller.isFixedPressed.value &&
+                        boxId == 0 &&
+                        controller.isSwapped.value)
+                      CustomTimer(
+                        seconds: controller.time.value,
+                      ),
+
                     if (controller.isFixedPressed.value && boxId == 1)
-                      const CustomTimer(),
+                      CustomTimer(
+                        seconds: controller.time.value,
+                      ),
 
                     IconButton(
                       onPressed: closeIconPressed,

@@ -2,7 +2,7 @@ import 'dart:developer';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-import '../../backend/models/init_tabel_model.dart';
+import '../../backend/models/init_table_model.dart';
 import '../../backend/models/currency_model.dart';
 import '../network_constants.dart';
 

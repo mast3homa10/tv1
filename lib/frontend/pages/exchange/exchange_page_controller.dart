@@ -9,13 +9,13 @@ import 'package:persian_number_utility/persian_number_utility.dart';
 import '../../../constants.dart';
 import '../../../backend/api/init_table.dart';
 import '../../../backend/api/get_exchange_rate.dart';
-import '../../../backend/api/check_pair_be_vaild.dart';
+import '../../../backend/api/check_pair_be_valid.dart';
 import '../../../backend/models/currency_model.dart';
 import '../../../backend/api/estimate_exchange_amount.dart';
-import '../../../backend/models/check_pair_be_vaild_model.dart';
+import '../../../backend/models/check_pair_be_valid_model.dart';
 import '../../../backend/models/estimate_exchange_amount_model.dart';
 import '../../../backend/models/get_exchange_rate_model.dart';
-import '../../../backend/models/init_tabel_model.dart';
+import '../../../backend/models/init_table_model.dart';
 
 class ExchangePageController extends GetxController {
   TextEditingController sourceTextController = TextEditingController();
@@ -31,7 +31,7 @@ class ExchangePageController extends GetxController {
   EstimateExchangeAmountModel? estimateAmount;
 
   var isSourceHasLimitation = false.obs;
-  var isDestanitionHasLimitation = false.obs;
+  var isDestinationHasLimitation = false.obs;
   var amount = 0.0.obs;
 
   @override
@@ -165,23 +165,40 @@ class ExchangePageController extends GetxController {
 // "updateReversed" change source with destination currency.
   updateSwap() {
     isSwapped = isSwapped.value ? false.obs : true.obs;
+
     if (isSwapped.value) {
       isFirstTyping = true.obs;
-      updateExchange(source: destinationCurrency, destination: sourceCurrency);
+      if (isFixedPressed.value) {
+        updateExchange(
+          source: destinationCurrency,
+          destination: sourceCurrency,
+        );
+      } else {
+        updateExchange(
+            source: destinationCurrency, destination: sourceCurrency);
+      }
     } else {
       isFirstTyping = true.obs;
 
-      updateExchange(source: sourceCurrency, destination: destinationCurrency);
+      if (isFixedPressed.value) {
+        updateExchange(
+          source: sourceCurrency,
+          destination: destinationCurrency,
+        );
+      } else {
+        updateExchange(
+            source: sourceCurrency, destination: destinationCurrency);
+      }
     }
     update();
-    message(title: 'is Swaped', content: isSwapped.value);
+    message(title: 'is Swapped', content: isSwapped.value);
   }
 
   InitTabelModel? initEstimate;
   List<CurrencyModel>? forSellList;
   List<CurrencyModel>? forBuyList;
   List<CurrencyModel>? currencyList = [];
-// "_initTable" is for get currency list and default currecnys (estimate)
+// "_initTable" is for get currency list and default currencies (estimate)
   _initTable() async {
     var initTableData = await InitTableApi().initTable();
     initEstimate = initTableData!['estimate'] ?? [];
@@ -189,9 +206,9 @@ class ExchangePageController extends GetxController {
     sourceTextController.text = kPersianDigit(sourceAmount);
     destinationAmount = initEstimate!.destinationAmount!.obs;
     destinationTextController.text = kPersianDigit(destinationAmount);
-    // save currencys in "currnecylist".
+    // save currencies in "currencyList".
     currencyList = initTableData['list'] ?? {};
-    //get default "source" & "destination" currencys.
+    //get default "source" & "destination" currencies.
     sourceCurrency = currencyList!
         .where((item) => item.engName!.toLowerCase() == 'bitcoin')
         .first;
@@ -213,7 +230,7 @@ class ExchangePageController extends GetxController {
     update();
   }
 
-  _pairBeVaild(
+  _pairBeValid(
       {var currencyForBuy,
       var currencyForSell,
       var isForReverse = false}) async {
@@ -226,7 +243,7 @@ class ExchangePageController extends GetxController {
     );
     bool isFixed = pairBeValid!.type!['fix'];
     message(title: 'is fix ', content: '$isFixed');
-    message(title: 'pair be vaild ', content: pairBeValid!);
+    message(title: 'pair be valid ', content: pairBeValid!);
 
     if (!pairBeValid!.type!['fix'] && !pairBeValid!.type!['not-fix']) {
       Get.defaultDialog(
@@ -309,30 +326,9 @@ class ExchangePageController extends GetxController {
         ? double.parse(destinationTextController.text.toEnglishDigit())
         : double.parse(sourceTextController.text.toEnglishDigit());
     amount = a.obs;
-    var currencyName =
-        isForReverse ? destinationCurrency!.faName : sourceCurrency!.faName;
-
     if (amount < minimumExchangeAmount.value) {
-      /*  Get.defaultDialog(
-          title: 'توجه!',
-          content: Text(
-              'مقدار $currencyName وارد شده کمتر از مقدار مجاز میباشد.'
-              '\nکمترین مقدار مجاز : ${kPersianDigit(minimumExchangeAmount.value)}'),
-          onWillPop: () async {
-            if (isForReverse) {
-              destinationTextController.text =
-                  kPersianDigit(minimumExchangeAmount.value);
-              secondOnChange(destinationTextController.text);
-            } else {
-              sourceTextController.text =
-                  kPersianDigit(minimumExchangeAmount.value);
-              firstOnChange(sourceTextController.text);
-            }
-            return true;
-          });
-      */
       if (isForReverse) {
-        isDestanitionHasLimitation = true.obs;
+        isDestinationHasLimitation = true.obs;
       } else {
         isSourceHasLimitation = true.obs;
       }
@@ -341,18 +337,12 @@ class ExchangePageController extends GetxController {
     } else if (amount > maximumExchangeAmount.value &&
         maximumExchangeAmount.value > 0) {
       if (isForReverse) {
-        isDestanitionHasLimitation = true.obs;
+        isDestinationHasLimitation = true.obs;
       } else {
         isSourceHasLimitation = true.obs;
       }
 
       update();
-      /* Get.defaultDialog(
-          title: 'توجه!',
-          content: Text(
-              'مقدار $currencyName وارد شده بیشتر از مقدار مجاز میباشد.'
-              '\nبیشترین مقدار مجاز : ${kPersianDigit(maximumExchangeAmount.value)}'));
-    */
     } else {
       if (isForReverse) {
         _estimateAmount(
@@ -375,6 +365,7 @@ class ExchangePageController extends GetxController {
     update();
   }
 
+  var time = 0.obs;
   _estimateAmount(
       {var currencyForSell,
       var currencyForBuy,
@@ -409,8 +400,8 @@ class ExchangePageController extends GetxController {
       message(title: 'valid Until ', content: "${estimateAmount!.validUntil}");
       DateTime date1 = DateTime.now();
       DateTime date2 = DateTime.parse(estimateAmount!.validUntil!);
-      var time = date2.difference(date1).inSeconds.obs;
-
+      time = date2.difference(date1).inSeconds.obs;
+      update();
       message(title: 'time ', content: ' $time');
     }
     if (isFirstTyping.value) {
@@ -433,7 +424,7 @@ class ExchangePageController extends GetxController {
   }
 
   updateExchange({var source, var destination, var isForReverse = false}) {
-    _pairBeVaild(
+    _pairBeValid(
         currencyForSell: source,
         currencyForBuy: destination,
         isForReverse: isForReverse);
@@ -441,7 +432,7 @@ class ExchangePageController extends GetxController {
   }
 
   RxBool isFixedPressed = false.obs;
-// for dispaly lock icon (fix) or not.
+// for display lock icon (fix) or not.
   updateFix() {
     isFixedPressed = isFixedPressed.value ? false.obs : true.obs;
     update();

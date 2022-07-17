@@ -2,13 +2,10 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 class CustomTimer extends StatefulWidget {
-  const CustomTimer({
-    Key? key,
-  }) : super(key: key);
-
+  const CustomTimer({Key? key, this.seconds = 120}) : super(key: key);
+  final int seconds;
   @override
   State<CustomTimer> createState() => _CustomTimerState();
 }
@@ -21,7 +18,13 @@ class _CustomTimerState extends State<CustomTimer> {
   @override
   void initState() {
     super.initState();
+
     startTimer();
+    setState(() {
+      if (widget.seconds > 0) {
+        seconds = widget.seconds;
+      }
+    });
   }
 
   @override
@@ -51,9 +54,9 @@ class _CustomTimerState extends State<CustomTimer> {
       setState(() {});
       time =
           '${((seconds / 60).truncate() % 60).toString().padLeft(2, '0')}:${(seconds % 60).toString().padLeft(2, '0')}';
-      log(time);
+      // log(time);
     } else {
-      Get.snackbar('توجه!', "زمان به پایان رسید");
+      // Get.snackbar('توجه!', "زمان به پایان رسید");
       timer?.cancel();
       setState(() {});
       log('finish');

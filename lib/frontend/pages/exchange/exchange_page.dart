@@ -72,7 +72,7 @@ class _ExchangePageState extends State<ExchangePage>
           return GestureDetector(
             onTap: () {
               exchangeController.isSourceHasLimitation = false.obs;
-              exchangeController.isDestanitionHasLimitation = false.obs;
+              exchangeController.isDestinationHasLimitation = false.obs;
               exchangeController.update();
               FocusManager.instance.primaryFocus?.unfocus();
             },
@@ -120,7 +120,7 @@ class _ExchangePageState extends State<ExchangePage>
                                     // first hit box
                                     if ((isSwapped
                                         ? exchangeController
-                                            .isDestanitionHasLimitation.value
+                                            .isDestinationHasLimitation.value
                                         : exchangeController
                                             .isSourceHasLimitation.value))
                                       Positioned(
@@ -145,7 +145,7 @@ class _ExchangePageState extends State<ExchangePage>
                                         ? exchangeController
                                             .isSourceHasLimitation.value
                                         : exchangeController
-                                            .isDestanitionHasLimitation.value))
+                                            .isDestinationHasLimitation.value))
                                       Positioned(
                                           top: (widgetBTop + 75) - tweenValue,
                                           width: Get.width,
@@ -373,41 +373,6 @@ class _ExchangePageState extends State<ExchangePage>
       ]),
     );
   }
-
-  Widget buildFirstHintBox({bool isforReverse = false}) => GestureDetector(
-        onTap: () {},
-        child: Container(
-          decoration: const BoxDecoration(
-            color: Colors.red,
-            borderRadius: BorderRadius.only(
-                bottomRight: Radius.circular(20.0),
-                bottomLeft: Radius.circular(20.0)),
-          ),
-          padding: const EdgeInsets.all(8.0),
-          margin: const EdgeInsets.all(8.0),
-          height: 70,
-          child: Column(
-            children: [
-              if (exchangeController.minimumExchangeAmount.value >
-                  exchangeController.amount.value)
-                CustomMessage.min(
-                  context: context,
-                  controller: exchangeController,
-                  hintId: 0,
-                  currency: exchangeController.sourceCurrency,
-                ),
-              if (exchangeController.maximumExchangeAmount.value >
-                  exchangeController.amount.value)
-                CustomMessage.max(
-                  context: context,
-                  controller: exchangeController,
-                  hintId: 0,
-                  currency: exchangeController.sourceCurrency,
-                ),
-            ],
-          ),
-        ),
-      );
 
   void buildFixSnakBar(BuildContext context) {
     showModalBottomSheet(
@@ -662,7 +627,7 @@ class CustomMessage extends StatelessWidget {
               }
 
               controller.isSourceHasLimitation = false.obs;
-              controller.isDestanitionHasLimitation = false.obs;
+              controller.isDestinationHasLimitation = false.obs;
               controller.update();
             },
             style: ButtonStyle(
@@ -720,7 +685,7 @@ class CustomMessage extends StatelessWidget {
                   }
                   controller.isSecondTyping = false.obs;
                   controller.isSourceHasLimitation = false.obs;
-                  controller.isDestanitionHasLimitation = false.obs;
+                  controller.isDestinationHasLimitation = false.obs;
                   controller.update();
                 },
                 style: ButtonStyle(
@@ -760,7 +725,7 @@ class CustomMessage extends StatelessWidget {
 
           controller.isSecondTyping = false.obs;
           controller.isSourceHasLimitation = false.obs;
-          controller.isDestanitionHasLimitation = false.obs;
+          controller.isDestinationHasLimitation = false.obs;
           controller.update();
         },
         style: ButtonStyle(
@@ -791,7 +756,7 @@ class CustomMessage extends StatelessWidget {
 
           controller.isSecondTyping = false.obs;
           controller.isSourceHasLimitation = false.obs;
-          controller.isDestanitionHasLimitation = false.obs;
+          controller.isDestinationHasLimitation = false.obs;
           controller.update();
         },
         style: ButtonStyle(
