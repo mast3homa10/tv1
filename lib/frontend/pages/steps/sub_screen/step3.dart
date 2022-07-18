@@ -3,7 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
-import 'package:tv1/frontend/components/custom_big_button.dart';
+import 'package:tv1/frontend/components/custom_button.dart';
 import 'package:tv1/frontend/pages/dashboard/dashboard_body.dart';
 
 import '../../../../backend/api/get_transaction_status.dart';
@@ -192,7 +192,7 @@ class _Step3State extends State<Step3> {
           height: 60,
           padding: const EdgeInsets.all(8.0),
           margin: const EdgeInsets.all(40.0),
-          child: CustomBigButton(
+          child: CustomButton(
             onPressed: () {
               Get.to(() => DashboardBody());
               finalController.currentstep = 0.obs;

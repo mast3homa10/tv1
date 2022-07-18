@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
 
-import '../../components/custom_small_button.dart';
+import '../../components/custom_button.dart';
 import '../guide/guide_page.dart';
 import '../dashboard/dashboard_body.dart';
 
@@ -15,79 +15,82 @@ class WelcomePage extends StatelessWidget {
       onWillPop: () async => false,
       child: Scaffold(
         resizeToAvoidBottomInset: false,
-        body: Column(
+        body: _buildBody(context),
+      ),
+    );
+  }
+
+  Widget _buildBody(BuildContext context) => Container(
+        decoration: const BoxDecoration(
+            // color: kBackgroundColorLightMode,
+            image: DecorationImage(
+                image: AssetImage('assets/images/welcomebackground.png'),
+                fit: BoxFit.cover)),
+        child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             SizedBox(
               height: Get.height * 0.1,
             ),
-            Container(
-              decoration: const BoxDecoration(
-                  // color: kBackgroundColorLightMode,
-                  image: DecorationImage(
-                      image: AssetImage('assets/images/welcomebackground.png'),
-                      fit: BoxFit.cover)),
-              child: Center(
-                child: Container(
-                  height: 320,
-                  width: 300,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(60.0),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.lightBlue.withOpacity(0.05),
-                        spreadRadius: 15,
-                        blurRadius: 27,
-                        offset:
-                            const Offset(0, 3), // changes position of shadow
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'خوش آمدید به',
-                        style: Theme.of(context).textTheme.headline2,
-                        textAlign: TextAlign.center,
-                      ),
-                      Container(
-                        width: 150,
-                        height: 150,
-                        decoration: BoxDecoration(
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.lightBlue.withOpacity(0.1),
-                              spreadRadius: 15,
-                              blurRadius: 27,
-                              offset: const Offset(
-                                  0, 5), // changes position of shadow
-                            ),
-                          ],
-                          shape: BoxShape.circle,
-                        ),
-                        child: const AspectRatio(
-                          aspectRatio: 20 / 9,
-                          child: Image(
-                            image: AssetImage('assets/images/logo.png'),
+            Center(
+              child: Container(
+                height: 320,
+                width: 300,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(60.0),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.lightBlue.withOpacity(0.05),
+                      spreadRadius: 15,
+                      blurRadius: 27,
+                      offset: const Offset(0, 3), // changes position of shadow
+                    ),
+                  ],
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'خوش آمدید به',
+                      style: Theme.of(context).textTheme.headline2,
+                      textAlign: TextAlign.center,
+                    ),
+                    Container(
+                      width: 150,
+                      height: 150,
+                      decoration: BoxDecoration(
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.lightBlue.withOpacity(0.1),
+                            spreadRadius: 15,
+                            blurRadius: 27,
+                            offset: const Offset(
+                                0, 5), // changes position of shadow
                           ),
+                        ],
+                        shape: BoxShape.circle,
+                      ),
+                      child: const AspectRatio(
+                        aspectRatio: 20 / 9,
+                        child: Image(
+                          image: AssetImage('assets/images/logo.png'),
                         ),
                       ),
-                      Text(
-                        'تهران اکسچنج',
-                        style: Theme.of(context).textTheme.headline1!.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
-                        textAlign: TextAlign.center,
-                      ),
-                      Text(
-                        'صرافی به حد و حصر کریپتو با بیش از 1000 \n'
-                        'جفت تجاری سریع و ایمن',
-                        style: Theme.of(context).textTheme.headline5,
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                  ),
+                    ),
+                    Text(
+                      'تهران اکسچنج',
+                      style: Theme.of(context).textTheme.headline1!.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                      textAlign: TextAlign.center,
+                    ),
+                    Text(
+                      'صرافی به حد و حصر کریپتو با بیش از 1000 \n'
+                      'جفت تجاری سریع و ایمن',
+                      style: Theme.of(context).textTheme.headline5,
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -132,12 +135,14 @@ class WelcomePage extends StatelessWidget {
                     child: ConstrainedBox(
                       constraints:
                           const BoxConstraints.tightFor(width: 166, height: 62),
-                      child: CustomSmallButton(
-                        child: Text(
-                          'شروع تبادل',
-                          style: Theme.of(context).textTheme.button!.copyWith(
-                              color: Theme.of(context).scaffoldBackgroundColor),
-                        ),
+                      child: CustomButton(
+                        label: 'شروع تبادل',
+                        labelStyle: Theme.of(context)
+                            .textTheme
+                            .button!
+                            .copyWith(
+                                color:
+                                    Theme.of(context).scaffoldBackgroundColor),
                         onPressed: () {
                           Get.off(() => DashboardBody());
                         },
@@ -149,7 +154,5 @@ class WelcomePage extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
+      );
 }

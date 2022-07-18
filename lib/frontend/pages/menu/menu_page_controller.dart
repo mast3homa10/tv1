@@ -24,6 +24,7 @@ class MenuPageController extends GetxController {
       ),
     ),
   ];
+
   changeMeneItemIndex(int index) {
     menuItemIndex = index.obs;
     update();

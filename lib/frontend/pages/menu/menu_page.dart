@@ -15,7 +15,7 @@ class MenuPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder(builder: (MenuPageController controller) {
+    return GetBuilder<MenuPageController>(builder: (controller) {
       return Scaffold(
         body: Column(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -58,10 +58,14 @@ class MenuPage extends StatelessWidget {
             SizedBox(
               height: Get.height * 0.12,
               child: ToggleBar(
-                  w: 110,
-                  labels: const ['پشتیبانی', 'سرویس', 'تنظیمات'],
-                  backgroundBorder: Border.all(width: 0.0),
-                  onSelectionUpdated: (index) =>
+                  itemWidth: 110,
+                  items: [
+                    ToggleBarItem(title: 'تنظیمات'),
+                    ToggleBarItem(title: 'سرویس'),
+                    ToggleBarItem(title: 'پشتیبانی'),
+                  ],
+                  selectedIndex: controller.menuItemIndex.value,
+                  onItemSelected: (index) =>
                       controller.changeMeneItemIndex(index)),
             ),
             SizedBox(

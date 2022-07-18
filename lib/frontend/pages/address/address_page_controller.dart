@@ -12,9 +12,15 @@ import '../steps/steps_page_controller.dart';
 import '../../../enums.dart';
 
 class AddressPageController extends GetxController {
-  var currentTopItem = 0.obs;
+  var currentTopItem = 1.obs;
   getCurrentTopItem(int index) {
     currentTopItem = index.obs;
+    update();
+  }
+
+  var currentToggleItem = 1.obs;
+  getToggleItem(int index) {
+    currentToggleItem = index.obs;
     update();
   }
 

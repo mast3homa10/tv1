@@ -16,10 +16,10 @@ class TopNavBar extends StatelessWidget {
     this.backgroundColor,
     this.itemCornerRadius = 50,
     this.containerHeight = 56,
-    this.animationDuration = const Duration(milliseconds: 270),
     this.mainAxisAlignment = MainAxisAlignment.spaceEvenly,
     required this.items,
     required this.onItemSelected,
+    this.animationDuration = const Duration(milliseconds: 270),
     this.curve = Curves.linear,
   })  : assert(items.length >= 2 && items.length <= 5),
         super(key: key);
@@ -80,7 +80,6 @@ class TopNavBar extends StatelessWidget {
       child: SafeArea(
         child: Container(
           width: double.infinity,
-          height: containerHeight,
           padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
           child: Row(
             mainAxisAlignment: mainAxisAlignment,
@@ -134,8 +133,8 @@ class _ItemWidget extends StatelessWidget {
       container: true,
       selected: isSelected,
       child: AnimatedContainer(
-        width: isSelected ? 170 : 50,
-        height: double.maxFinite,
+        width: isSelected ? 190 : 90,
+        height: 80,
         duration: animationDuration,
         curve: curve,
         decoration: BoxDecoration(
@@ -144,47 +143,57 @@ class _ItemWidget extends StatelessWidget {
               : backgroundColor,
           borderRadius: BorderRadius.circular(itemCornerRadius),
         ),
-        child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          physics: const NeverScrollableScrollPhysics(),
-          child: Container(
-            width: isSelected ? 166 : 50,
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: Row(
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                isIconShow
-                    ? IconTheme(
-                        data: IconThemeData(
-                          size: iconSize,
-                          color: isSelected
-                              ? Theme.of(context).backgroundColor.withOpacity(1)
-                              : Theme.of(context).iconTheme.color ??
-                                  item.activeColor,
-                        ),
-                        child: item.icon,
-                      )
-                    : Container(),
-                if (isSelected)
-                  Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 4),
-                      child: DefaultTextStyle.merge(
-                        style: Theme.of(context).textTheme.headline5!.copyWith(
-                              color: Theme.of(context).backgroundColor,
-                              fontFamily: "YekanBakh",
-                              fontWeight: FontWeight.bold,
-                            ),
-                        maxLines: 1,
-                        textAlign: item.textAlign,
-                        child: item.title,
+        child: Container(
+          width: isSelected ? 190 : 90,
+          padding: const EdgeInsets.only(top: 15.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              isIconShow
+                  ? IconTheme(
+                      data: IconThemeData(
+                        size: iconSize,
+                        color: isSelected
+                            ? Theme.of(context).backgroundColor.withOpacity(1)
+                            : Theme.of(context).iconTheme.color ??
+                                item.activeColor,
                       ),
+                      child: item.icon,
+                    )
+                  : Container(),
+              if (isSelected)
+                Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    child: DefaultTextStyle.merge(
+                      style: Theme.of(context).textTheme.headline5!.copyWith(
+                            color: Theme.of(context).backgroundColor,
+                            fontFamily: "YekanBakh",
+                            fontWeight: FontWeight.bold,
+                          ),
+                      maxLines: 1,
+                      textAlign: item.textAlign,
+                      child: item.title,
                     ),
                   ),
-              ],
-            ),
+                ),
+              if (!isSelected)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: DefaultTextStyle.merge(
+                    style: Theme.of(context).textTheme.headline5!.copyWith(
+                          color: Theme.of(context).dividerTheme.color,
+                          fontSize: 12,
+                          fontFamily: "YekanBakh",
+                          fontWeight: FontWeight.bold,
+                        ),
+                    maxLines: 1,
+                    textAlign: item.textAlign,
+                    child: item.title,
+                  ),
+                ),
+            ],
           ),
         ),
       ),

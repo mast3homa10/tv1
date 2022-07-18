@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../dashboard/dashboard_body_controller.dart';
 
-import '../../components/custom_big_button.dart';
+import '../../components/custom_button.dart';
 
 class HistoryPage extends StatelessWidget {
   HistoryPage({Key? key}) : super(key: key);
@@ -174,7 +174,7 @@ class HistoryPage extends StatelessWidget {
           ),
           Padding(
             padding: const EdgeInsets.all(15.0),
-            child: CustomBigButton(
+            child: CustomButton(
               label: 'شروع تبادل',
               onPressed: () {
                 // Get.snackbar(

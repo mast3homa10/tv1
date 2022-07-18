@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
+import 'package:tv1/frontend/pages/address/address_page.dart';
 
 import '../address_page_controller.dart';
 
@@ -34,15 +35,48 @@ class _QRCodeScreenState extends State<QRCodeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Column(
+    return SizedBox(
+      width: Get.width,
+      height: Get.height * 0.7,
+      child: Column(
         children: <Widget>[
           Expanded(flex: 4, child: _buildQrView(context)),
+          Expanded(child: buildNextButton())
         ],
       ),
     );
   }
 
+  buildNextButton() => Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(15.0),
+            child: TextButton(
+              style: ButtonStyle(
+                  textStyle: MaterialStateProperty.all<TextStyle?>(
+                    Theme.of(context)
+                        .textTheme
+                        .headline3!
+                        .copyWith(color: Theme.of(context).backgroundColor),
+                  ),
+                  side: MaterialStateProperty.all<BorderSide>(
+                      BorderSide(color: Theme.of(context).backgroundColor)),
+                  shape: MaterialStateProperty.all<OutlinedBorder?>(
+                      RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30)))),
+              onPressed: () => Get.back(),
+              child: const Padding(
+                padding: EdgeInsets.only(
+                    left: 35.0, right: 35.0, top: 8.0, bottom: 8.0),
+                child: Text(
+                  'بازگشت',
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
   Widget _buildQrView(BuildContext context) {
     // For this example we check how width or tall the device is and change the scanArea and overlay accordingly.
     var scanArea = (MediaQuery.of(context).size.width < 400 ||
@@ -83,15 +117,16 @@ class _QRCodeScreenState extends State<QRCodeScreen> {
               log('qrcode Result for support address = ${addressConroller.textSupportAddressController.text}');
             }
 
-            Get.back();
+            addressConroller.currentTopItem.value = 1;
+            addressConroller.update();
           });
         } else {
           Get.snackbar('توجه!', "آدرس دریافت نشد");
-          Get.back();
+          Get.off(() => AddressPage());
         }
       } catch (e) {
         Get.snackbar('توجه!', "دریافت آدرس با اسکنر با مشکل مواجه شده");
-        Get.back();
+        Get.off(() => AddressPage());
       }
     });
   }

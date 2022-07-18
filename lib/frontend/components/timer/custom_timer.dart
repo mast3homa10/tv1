@@ -11,7 +11,6 @@ class CustomTimer extends StatefulWidget {
 }
 
 class _CustomTimerState extends State<CustomTimer> {
-  var conuter = 0;
   var time = '';
   var seconds = 120;
   Timer? timer;
@@ -35,32 +34,21 @@ class _CustomTimerState extends State<CustomTimer> {
     log('finish');
   }
 
-  setTimer(int maxSeconds) {
-    seconds = maxSeconds;
-    setState(() {});
-  }
-
   startTimer() {
     timer = Timer.periodic(const Duration(seconds: 1), (_) {
-      decrement();
+      if (seconds > 0) {
+        seconds--;
+        setState(() {});
+        time =
+            '${((seconds / 60).truncate() % 60).toString().padLeft(2, '0')}:${(seconds % 60).toString().padLeft(2, '0')}';
+        // log(time);
+      } else {
+        // Get.snackbar('توجه!', "زمان به پایان رسید");
+        timer?.cancel();
+        setState(() {});
+        log('finish');
+      }
     });
-  }
-
-  stopTimer() {}
-
-  decrement() {
-    if (seconds > 0) {
-      seconds--;
-      setState(() {});
-      time =
-          '${((seconds / 60).truncate() % 60).toString().padLeft(2, '0')}:${(seconds % 60).toString().padLeft(2, '0')}';
-      // log(time);
-    } else {
-      // Get.snackbar('توجه!', "زمان به پایان رسید");
-      timer?.cancel();
-      setState(() {});
-      log('finish');
-    }
   }
 
   @override

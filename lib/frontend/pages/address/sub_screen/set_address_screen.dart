@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
+import 'package:tv1/frontend/components/custom_button.dart';
 
-import '../../../../frontend/components/custom_small_button.dart';
 import '../../../../frontend/pages/address/address_page_controller.dart';
 import '../../exchange/exchange_page_controller.dart';
 import '../../../components/address_box.dart';
@@ -25,6 +25,7 @@ class _SetAddressScreenState extends State<SetAddressScreen> {
   Widget build(BuildContext context) {
     return GetBuilder<AddressPageController>(builder: (addressController) {
       return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           SizedBox(
             height: Get.height * 0.37,
@@ -64,71 +65,25 @@ class _SetAddressScreenState extends State<SetAddressScreen> {
             ),
           ),
           SizedBox(
-            height: Get.height < 700 ? Get.height * 0.2 : Get.height * 0.25,
+            // height: Get.height < 700 ? Get.height * 0.25 : Get.height * 0.3,
+            height:
+                Get.height < 700 ? Get.height * 0.1795 : Get.height * 0.2295,
           ),
-          buildNextButton(addressController),
+          Padding(
+            padding: const EdgeInsets.all(15.0),
+            child: CustomButton(
+              onPressed: () => addressController.addAddress(context),
+              isPressed: addressController.isPressed.value,
+              label: addressController.currenButton.value == Button.first ||
+                      addressController.currenButton.value == Button.second
+                  ? 'بعدی'
+                  : 'شروع تبادل',
+            ),
+          )
         ],
       );
     });
   }
-
-  buildNextButton(AddressPageController addressController) => Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(15.0),
-            child: CustomSmallButton(
-              onPressed: () => addressController.addAddress(context),
-              child: SizedBox(
-                  height: 60,
-                  width: 120,
-                  child: Center(
-                    child: addressController.isPressed.value
-                        ? const CircularProgressIndicator()
-                        : Text(
-                            addressController.currenButton.value ==
-                                        Button.first ||
-                                    addressController.currenButton.value ==
-                                        Button.second
-                                ? 'بعدی'
-                                : 'شروع تبادل',
-                            style: Theme.of(context)
-                                .textTheme
-                                .headline3!
-                                .copyWith(
-                                    color: Theme.of(context)
-                                        .scaffoldBackgroundColor),
-                          ),
-                  )),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(15.0),
-            child: TextButton(
-              style: ButtonStyle(
-                  textStyle: MaterialStateProperty.all<TextStyle?>(
-                    Theme.of(context)
-                        .textTheme
-                        .headline3!
-                        .copyWith(color: Theme.of(context).backgroundColor),
-                  ),
-                  side: MaterialStateProperty.all<BorderSide>(
-                      BorderSide(color: Theme.of(context).backgroundColor)),
-                  shape: MaterialStateProperty.all<OutlinedBorder?>(
-                      RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30)))),
-              onPressed: () => Get.back(),
-              child: const Padding(
-                padding: EdgeInsets.only(
-                    left: 35.0, right: 35.0, top: 8.0, bottom: 8.0),
-                child: Text(
-                  'بازگشت',
-                ),
-              ),
-            ),
-          ),
-        ],
-      );
 }
 
 
@@ -265,4 +220,31 @@ class _SetAddressScreenState extends State<SetAddressScreen> {
                 }
               },
                */
-            
+
+//////
+/*  Padding(
+            padding: const EdgeInsets.all(15.0),
+            child: TextButton(
+              style: ButtonStyle(
+                  textStyle: MaterialStateProperty.all<TextStyle?>(
+                    Theme.of(context)
+                        .textTheme
+                        .headline3!
+                        .copyWith(color: Theme.of(context).backgroundColor),
+                  ),
+                  side: MaterialStateProperty.all<BorderSide>(
+                      BorderSide(color: Theme.of(context).backgroundColor)),
+                  shape: MaterialStateProperty.all<OutlinedBorder?>(
+                      RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30)))),
+              onPressed: () => Get.back(),
+              child: const Padding(
+                padding: EdgeInsets.only(
+                    left: 35.0, right: 35.0, top: 8.0, bottom: 8.0),
+                child: Text(
+                  'بازگشت',
+                ),
+              ),
+            ),
+          ), */
+       

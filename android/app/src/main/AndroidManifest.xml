@@ -4,7 +4,7 @@
     <uses-permission android:name="android.permission.INTERNET"/>
      
    <application
-        android:label="tv1"
+        android:label="exchange"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

@@ -1,8 +1,111 @@
-import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class ToggleBar extends StatefulWidget {
+class ToggleBar extends StatelessWidget {
+  final List items;
+  final int selectedIndex;
+  final double itemWidth;
+  final ValueChanged<int> onItemSelected;
+
+  const ToggleBar(
+      {Key? key,
+      required this.items,
+      this.selectedIndex = 0,
+      required this.onItemSelected,
+      this.itemWidth = 170})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        margin: const EdgeInsets.all(8.0),
+        height: Get.height * 0.1,
+        width: Get.width,
+        decoration: BoxDecoration(
+          color: Theme.of(context).scaffoldBackgroundColor,
+          border: Border.all(
+              width: 1.0,
+              color: Theme.of(context).dividerTheme.color ?? Colors.white),
+          borderRadius: BorderRadius.circular(20.0),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: items.map((item) {
+            var index = items.indexOf(item);
+            return GestureDetector(
+              onTap: () => onItemSelected(index),
+              child: ItemWidget(
+                item: item,
+                isSelected: index == selectedIndex,
+                width: itemWidth,
+              ),
+            );
+          }).toList(),
+        ));
+  }
+}
+
+class ItemWidget extends StatelessWidget {
+  final bool isSelected;
+  final ToggleBarItem item;
+  final double width;
+  const ItemWidget({
+    Key? key,
+    required this.item,
+    required this.isSelected,
+    this.width = 100,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      container: true,
+      selected: isSelected,
+      child: AnimatedContainer(
+        width: width,
+        height: 60,
+        duration: const Duration(milliseconds: 270),
+        curve: Curves.linear,
+        decoration: BoxDecoration(
+          color: isSelected
+              ? Colors.grey.withOpacity(.4)
+              : Theme.of(context).scaffoldBackgroundColor,
+          borderRadius: BorderRadius.circular(30),
+        ),
+        child: Center(
+            child: Text(
+          item.title,
+          textAlign: TextAlign.center,
+          style: Theme.of(context).textTheme.headline4!.copyWith(
+                fontWeight: FontWeight.bold,
+                // color: Theme.of(context).dividerTheme.color
+              ),
+        )),
+      ),
+    );
+  }
+}
+
+/// The [ToggleBarItem.items] definition.
+class ToggleBarItem {
+  ToggleBarItem({
+    required this.title,
+    this.activeColor = Colors.blue,
+    this.inactiveColor,
+  });
+
+  final String title;
+
+  final Color activeColor;
+
+  final Color? inactiveColor;
+}
+
+
+
+
+///////////////////////////
+/* class ToggleBar extends StatefulWidget {
   final TextStyle labelTextStyle;
   final Color backgroundColor;
   final double w;
@@ -117,3 +220,4 @@ class _ToggleBarState extends State<ToggleBar> {
     });
   }
 }
+ */

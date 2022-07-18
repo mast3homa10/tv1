@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-import '../../../frontend/components/custom_big_button.dart';
+import '../../components/custom_button.dart';
 import '../../../frontend/components/toggle_switch_button.dart';
 
 class SupportPage extends StatelessWidget {
@@ -14,17 +14,16 @@ class SupportPage extends StatelessWidget {
     return Scaffold(
       body: Column(
         mainAxisAlignment: MainAxisAlignment.end,
-        crossAxisAlignment: CrossAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Center(
-              child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: CustomBigButton(
+          Padding(
+            padding: const EdgeInsets.all(15.0),
+            child: CustomButton(
                 label: 'ارتباط با ما',
                 onPressed: () {
                   Get.to(const ChatPage());
                 }),
-          ))
+          )
         ],
       ),
     );

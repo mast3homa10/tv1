@@ -38,7 +38,7 @@ List<GetPage<dynamic>> routes = [
   ),
   GetPage(
     name: '/menu_page',
-    page: () => const MenuPage(),
+    page: () => MenuPage(),
     transition: Transition.downToUp,
   ),
   GetPage(

@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:tv1/frontend/pages/address/address_page.dart';
 
 import '../exchange/exchange_page.dart';
 import '../../../frontend/pages/history/history_page.dart';
@@ -10,7 +11,6 @@ import '../../../frontend/pages/menu/menu_page.dart';
 import '../../../frontend/pages/support/support_page.dart';
 
 class DashboardBodyController extends GetxController {
-  var currentPage = 2.obs;
   var isScreenChange = false.obs;
 
   final screens = [
@@ -19,12 +19,19 @@ class DashboardBodyController extends GetxController {
     const ExchangePage(),
     HistoryPage(),
   ];
+  final screens2 = [
+    const MenuPage(),
+    const SupportPage(),
+    AddressPage(),
+    HistoryPage(),
+  ];
   changeScreen() {
     isScreenChange = isScreenChange.value ? false.obs : true.obs;
     update();
     log('is screen change :${isScreenChange.value}');
   }
 
+  var currentPage = 2.obs;
   getCurrentPage(int index) {
     currentPage = index.obs;
     update();
