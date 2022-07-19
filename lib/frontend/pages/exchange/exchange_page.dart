@@ -24,6 +24,7 @@ class _ExchangePageState extends State<ExchangePage>
   final double widgetATop = 0;
   final double widgetBTop = 180;
   bool isSwapped = false;
+  bool isSwappedDisable = false;
   bool isMassegeShow = false;
 
   late AnimationController animationController;
@@ -206,14 +207,16 @@ class _ExchangePageState extends State<ExchangePage>
           exchangeController.updateFix();
           exchangeController.isSecondTyping = true.obs;
           exchangeController.updateExchange(
-              source: exchangeController.destinationCurrency,
-              destination: exchangeController.sourceCurrency,
-              isForReverse: true);
+            source: exchangeController.destinationCurrency,
+            destination: exchangeController.sourceCurrency,
+            isForReverse: true,
+          );
         },
         closeIconPressed: () {
           exchangeController.updateFix();
           exchangeController.isFirstTyping = true.obs;
           exchangeController.updateExchange(
+            isForReverse: false,
             source: exchangeController.destinationCurrency,
             destination: exchangeController.sourceCurrency,
           );
@@ -245,9 +248,11 @@ class _ExchangePageState extends State<ExchangePage>
           exchangeController.updateFix();
           exchangeController.isSecondTyping = true.obs;
           exchangeController.updateExchange(
-              source: exchangeController.sourceCurrency,
-              destination: exchangeController.destinationCurrency,
-              isForReverse: true);
+            source: exchangeController.sourceCurrency,
+            destination: exchangeController.destinationCurrency,
+            isFix: true,
+            isForReverse: true,
+          );
         },
         closeIconPressed: () {
           exchangeController.updateFix();
@@ -255,29 +260,36 @@ class _ExchangePageState extends State<ExchangePage>
           exchangeController.updateExchange(
             source: exchangeController.sourceCurrency,
             destination: exchangeController.destinationCurrency,
+            isForReverse: false,
           );
         },
       );
 
   Widget _buildSwapButton() => SwapButton(onTap: () {
-        setState(() {
-          if (!exchangeController.destinationCurrency!.availableForSell!) {
-            Get.snackbar('توجه!',
-                ' ارز ${exchangeController.destinationCurrency!.faName} قابل فروش نیست');
-          } else {
-            if (!exchangeController.sourceCurrency!.availableForBuy!) {
+        if (!isSwappedDisable) {
+          setState(() async {
+            isSwappedDisable = !isSwappedDisable;
+
+            if (!exchangeController.destinationCurrency!.availableForSell!) {
               Get.snackbar('توجه!',
-                  ' ارز ${exchangeController.sourceCurrency!.faName} قابل خرید نیست');
+                  ' ارز ${exchangeController.destinationCurrency!.faName} قابل فروش نیست');
             } else {
-              isSwapped
-                  ? animationController.reverse()
-                  : animationController.forward();
-              exchangeController.updateSwap();
-              isSwapped = !isSwapped;
-              isMassegeShow = !isMassegeShow;
+              if (!exchangeController.sourceCurrency!.availableForBuy!) {
+                Get.snackbar('توجه!',
+                    ' ارز ${exchangeController.sourceCurrency!.faName} قابل خرید نیست');
+              } else {
+                isSwapped
+                    ? animationController.reverse()
+                    : animationController.forward();
+                exchangeController.updateSwap();
+                isSwapped = !isSwapped;
+                isMassegeShow = !isMassegeShow;
+                await Future.delayed(const Duration(seconds: 2));
+                isSwappedDisable = !isSwappedDisable;
+              }
             }
-          }
-        });
+          });
+        }
       });
 
   Widget _buildResult(

@@ -34,17 +34,15 @@ class _QRCodeScreenState extends State<QRCodeScreen> {
   }
 
   @override
+  void dispose() {
+    qrController!.pauseCamera();
+    qrController?.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: Get.width,
-      height: Get.height * 0.7,
-      child: Column(
-        children: <Widget>[
-          Expanded(flex: 4, child: _buildQrView(context)),
-          Expanded(child: buildNextButton())
-        ],
-      ),
-    );
+    return _buildQrView(context);
   }
 
   buildNextButton() => Row(
@@ -81,20 +79,26 @@ class _QRCodeScreenState extends State<QRCodeScreen> {
     // For this example we check how width or tall the device is and change the scanArea and overlay accordingly.
     var scanArea = (MediaQuery.of(context).size.width < 400 ||
             MediaQuery.of(context).size.height < 400)
-        ? 300.0
-        : 300.0;
+        ? 200.0
+        : 250.0;
     // To ensure the Scanner view is properly sizes after rotation
     // we need to listen for Flutter SizeChanged notification and update qrController
-    return QRView(
-      key: qrKey,
-      onQRViewCreated: _onQRViewCreated,
-      overlay: QrScannerOverlayShape(
-          borderColor: Colors.red,
-          borderRadius: 10,
-          borderLength: 30,
-          borderWidth: 10,
-          cutOutSize: scanArea),
-      onPermissionSet: (ctrl, p) => _onPermissionSet(context, ctrl, p),
+    return SizedBox(
+      height: Get.height * 0.7,
+      child: AspectRatio(
+        aspectRatio: 16 / 22.8,
+        child: QRView(
+          key: qrKey,
+          onQRViewCreated: _onQRViewCreated,
+          overlay: QrScannerOverlayShape(
+              borderColor: Colors.red,
+              borderRadius: 10,
+              borderLength: 30,
+              borderWidth: 10,
+              cutOutSize: scanArea),
+          onPermissionSet: (ctrl, p) => _onPermissionSet(context, ctrl, p),
+        ),
+      ),
     );
   }
 
@@ -117,8 +121,7 @@ class _QRCodeScreenState extends State<QRCodeScreen> {
               log('qrcode Result for support address = ${addressConroller.textSupportAddressController.text}');
             }
 
-            addressConroller.currentTopItem.value = 1;
-            addressConroller.update();
+            Get.off(() => AddressPage());
           });
         } else {
           Get.snackbar('توجه!', "آدرس دریافت نشد");
@@ -138,12 +141,6 @@ class _QRCodeScreenState extends State<QRCodeScreen> {
         const SnackBar(content: Text('no Permission')),
       );
     }
-  }
-
-  @override
-  void dispose() {
-    qrController?.dispose();
-    super.dispose();
   }
 }
  

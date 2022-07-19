@@ -44,12 +44,20 @@ class ExchangePageController extends GetxController {
   late Timer sendOnStoppedTyping = Timer(const Duration(milliseconds: 800),
       () => log('request on stopped typing'));
 
+  //
+  var isTimerStop = false.obs;
+  updateTimer() {
+    isTimerStop = isTimerStop.value ? false.obs : true.obs;
+    update();
+  }
+
   var isFirstTyping = false.obs;
   var isSecondTyping = false.obs;
 // use ""firstOnChange"" & ""secondOnChange"" to send request after stop typing
   firstOnChange(value) {
     isFirstTyping = true.obs;
-
+    isSourceHasLimitation = false.obs;
+    isDestinationHasLimitation = false.obs;
     const duration = Duration(milliseconds: 600);
     sendOnStoppedTyping.cancel();
     sendOnStoppedTyping = Timer(
@@ -58,10 +66,14 @@ class ExchangePageController extends GetxController {
             ? updateExchange(
                 source: destinationCurrency,
                 destination: sourceCurrency,
+                isFix: isFixedPressed.value ? true : false,
+                isForReverse: false,
               )
             : updateExchange(
                 source: sourceCurrency,
                 destination: destinationCurrency,
+                isFix: isFixedPressed.value ? true : false,
+                isForReverse: false,
               ));
     update();
   }
@@ -69,19 +81,25 @@ class ExchangePageController extends GetxController {
   secondOnChange(value) {
     isSecondTyping = true.obs;
     isFixedPressed = true.obs;
+    isSourceHasLimitation = false.obs;
+    isDestinationHasLimitation = false.obs;
     const duration = Duration(milliseconds: 600);
     sendOnStoppedTyping.cancel();
     sendOnStoppedTyping = Timer(
         duration,
         () => isSwapped.value
             ? updateExchange(
+                isFix: true,
                 isForReverse: true,
                 source: destinationCurrency,
                 destination: sourceCurrency)
             : updateExchange(
+                isFix: true,
                 isForReverse: true,
                 source: sourceCurrency,
                 destination: destinationCurrency));
+    isFixedPressed = true.obs;
+
     update();
   }
 
@@ -119,35 +137,42 @@ class ExchangePageController extends GetxController {
   CurrencyModel? sourceCurrency;
   CurrencyModel? destinationCurrency;
   updateCurrencyChoice(
-      {required CurrencyModel currency,
-      var isForReverse = false,
-      required int item}) {
+      {required CurrencyModel currency, var isFix = false, required int item}) {
     if (isSwapped.value) {
       if (item == 1) {
         sourceCurrency = currency;
         updateExchange(
-            destination: sourceCurrency, source: destinationCurrency);
+            destination: sourceCurrency,
+            source: destinationCurrency,
+            isForReverse: false);
         isFirstTyping = true.obs;
       } else {
         destinationCurrency = currency;
         updateExchange(
-            destination: sourceCurrency,
-            source: destinationCurrency,
-            isForReverse: isForReverse);
+          destination: sourceCurrency,
+          source: destinationCurrency,
+          isFix: isFix,
+          isForReverse: true,
+        );
         isFirstTyping = true.obs;
       }
     } else {
       if (item == 1) {
         destinationCurrency = currency;
         updateExchange(
-            destination: destinationCurrency,
-            source: sourceCurrency,
-            isForReverse: isForReverse);
+          destination: destinationCurrency,
+          source: sourceCurrency,
+          isFix: isFix,
+          isForReverse: true,
+        );
         isFirstTyping = true.obs;
       } else {
         sourceCurrency = currency;
         updateExchange(
-            destination: destinationCurrency, source: sourceCurrency);
+          destination: destinationCurrency,
+          source: sourceCurrency,
+          isForReverse: false,
+        );
         isFirstTyping = true.obs;
       }
     }
@@ -162,9 +187,10 @@ class ExchangePageController extends GetxController {
   }
 
   RxBool isSwapped = false.obs;
-// "updateReversed" change source with destination currency.
+
+// "updateSwap" change source with destination currency.
   updateSwap() {
-    isSwapped = isSwapped.value ? false.obs : true.obs;
+    isSwapped = !isSwapped.value ? false.obs : true.obs;
 
     if (isSwapped.value) {
       isFirstTyping = true.obs;
@@ -172,10 +198,15 @@ class ExchangePageController extends GetxController {
         updateExchange(
           source: destinationCurrency,
           destination: sourceCurrency,
+          isFix: true,
+          isForReverse: false,
         );
       } else {
         updateExchange(
-            source: destinationCurrency, destination: sourceCurrency);
+          source: destinationCurrency,
+          destination: sourceCurrency,
+          isForReverse: false,
+        );
       }
     } else {
       isFirstTyping = true.obs;
@@ -184,10 +215,15 @@ class ExchangePageController extends GetxController {
         updateExchange(
           source: sourceCurrency,
           destination: destinationCurrency,
+          isFix: true,
+          isForReverse: false,
         );
       } else {
         updateExchange(
-            source: sourceCurrency, destination: destinationCurrency);
+          source: sourceCurrency,
+          destination: destinationCurrency,
+          isForReverse: false,
+        );
       }
     }
     update();
@@ -230,9 +266,24 @@ class ExchangePageController extends GetxController {
     update();
   }
 
+  updateExchange({
+    var source,
+    var destination,
+    var isFix = false,
+    var isForReverse = false,
+  }) {
+    _pairBeValid(
+        currencyForSell: source,
+        currencyForBuy: destination,
+        isFix: isFix,
+        isForReverse: isForReverse);
+    update();
+  }
+
   _pairBeValid(
       {var currencyForBuy,
       var currencyForSell,
+      var isFix = false,
       var isForReverse = false}) async {
     pairBeValid = await CheckPairBeVaildApi().getPairBeVaild(
       type: isFixedPressed.value ? "fix" : "not-fix",
@@ -241,8 +292,8 @@ class ExchangePageController extends GetxController {
       destinationNetwork: currencyForBuy!.inNetwork,
       destinationCurrency: currencyForBuy.symbol,
     );
-    bool isFixed = pairBeValid!.type!['fix'];
-    message(title: 'is fix ', content: '$isFixed');
+    bool isAvalibleFix = pairBeValid!.type!['fix'];
+    message(title: 'fix can be ', content: '$isAvalibleFix');
     message(title: 'pair be valid ', content: pairBeValid!);
 
     if (!pairBeValid!.type!['fix'] && !pairBeValid!.type!['not-fix']) {
@@ -252,6 +303,8 @@ class ExchangePageController extends GetxController {
           "این جفت ارز با هم قابل مبادله نیستند",
         ),
       );
+      isFixedPressed = false.obs;
+      update();
     } else {
       if (!pairBeValid!.type!['fix'] && pairBeValid!.type!['not-fix']) {
         if (isFixedPressed.value) {
@@ -270,12 +323,20 @@ class ExchangePageController extends GetxController {
               type: "not-fix");
         }
       } else {
-        if (isForReverse && isFixed) {
-          _exchangeRate(
-              isForReverse: isForReverse,
-              currencyForSell: currencyForSell,
-              currencyForBuy: currencyForBuy,
-              type: 'fix');
+        if (isFix && isAvalibleFix) {
+          if (isForReverse) {
+            _exchangeRate(
+                isForReverse: isFix,
+                currencyForSell: currencyForSell,
+                currencyForBuy: currencyForBuy,
+                type: 'fix');
+          } else {
+            _exchangeRate(
+                isForReverse: !isFix,
+                currencyForSell: currencyForSell,
+                currencyForBuy: currencyForBuy,
+                type: 'fix');
+          }
         } else {
           _exchangeRate(
               currencyForSell: currencyForSell,
@@ -292,6 +353,7 @@ class ExchangePageController extends GetxController {
       {var currencyForSell,
       var currencyForBuy,
       var type,
+      var isFix = false,
       var isForReverse = false}) async {
     if (isForReverse) {
       exchangeRate = await GetExchangeRateApi().getExchangeRate(
@@ -322,36 +384,38 @@ class ExchangePageController extends GetxController {
     message(title: 'maximumExchangeAmount ', content: maximumExchangeAmount);
     message(title: 'get exchange rate ', content: exchangeRate);
 
-    double a = isForReverse
+    double tempAmount = isForReverse
         ? double.parse(destinationTextController.text.toEnglishDigit())
         : double.parse(sourceTextController.text.toEnglishDigit());
-    amount = a.obs;
-    if (amount < minimumExchangeAmount.value) {
+    amount = tempAmount.obs;
+    if (amount < minimumExchangeAmount.value ||
+        (amount > maximumExchangeAmount.value &&
+            maximumExchangeAmount.value > 0)) {
       if (isForReverse) {
         isDestinationHasLimitation = true.obs;
       } else {
         isSourceHasLimitation = true.obs;
       }
-      update();
-      destinationTextController.text = '';
-    } else if (amount > maximumExchangeAmount.value &&
-        maximumExchangeAmount.value > 0) {
-      if (isForReverse) {
-        isDestinationHasLimitation = true.obs;
-      } else {
-        isSourceHasLimitation = true.obs;
-      }
-
       update();
     } else {
-      if (isForReverse) {
-        _estimateAmount(
-            currencyForSell: currencyForSell,
-            currencyForBuy: currencyForBuy,
-            type: 'fix',
-            amount: amount.value,
-            isForReverse: isForReverse,
-            directionOfExchangeFlow: 'reverse');
+      if (isFix) {
+        if (isForReverse) {
+          _estimateAmount(
+              currencyForSell: currencyForSell,
+              currencyForBuy: currencyForBuy,
+              type: 'fix',
+              amount: amount.value,
+              isForReverse: isForReverse,
+              directionOfExchangeFlow: 'reverse');
+        } else {
+          _estimateAmount(
+              currencyForSell: currencyForSell,
+              currencyForBuy: currencyForBuy,
+              type: 'fix',
+              amount: amount.value,
+              isForReverse: isForReverse,
+              directionOfExchangeFlow: 'direct');
+        }
       } else {
         _estimateAmount(
             currencyForSell: currencyForSell,
@@ -423,18 +487,12 @@ class ExchangePageController extends GetxController {
     update();
   }
 
-  updateExchange({var source, var destination, var isForReverse = false}) {
-    _pairBeValid(
-        currencyForSell: source,
-        currencyForBuy: destination,
-        isForReverse: isForReverse);
-    update();
-  }
-
   RxBool isFixedPressed = false.obs;
 // for display lock icon (fix) or not.
   updateFix() {
     isFixedPressed = isFixedPressed.value ? false.obs : true.obs;
+    isSourceHasLimitation = false.obs;
+    isDestinationHasLimitation = false.obs;
     update();
     message(title: 'is fix enable', content: isFixedPressed.value);
   }

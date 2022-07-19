@@ -58,7 +58,8 @@ String kPersianDigit(var digit) {
   return num;
 }
 
-const kSpinkit = SpinKitRotatingCircle(
+const kSpinkit = SpinKitRing(
   color: Colors.blue,
+  lineWidth: 5,
   size: 50.0,
 );

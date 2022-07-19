@@ -66,8 +66,7 @@ class _SetAddressScreenState extends State<SetAddressScreen> {
           ),
           SizedBox(
             // height: Get.height < 700 ? Get.height * 0.25 : Get.height * 0.3,
-            height:
-                Get.height < 700 ? Get.height * 0.1795 : Get.height * 0.2295,
+            height: Get.height < 700 ? Get.height * 0.15 : Get.height * 0.21,
           ),
           Padding(
             padding: const EdgeInsets.all(15.0),

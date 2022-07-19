@@ -112,6 +112,8 @@ class CustomMessage extends StatelessWidget {
   Widget build(BuildContext context) {
     if (action == 'min') {
       return Row(
+        textBaseline: TextBaseline.alphabetic,
+        crossAxisAlignment: CrossAxisAlignment.baseline,
         children: [
           Text(
             'کمترین مقدار قابل مبادله ',
@@ -130,105 +132,108 @@ class CustomMessage extends StatelessWidget {
           ),
           TextButton(
             onPressed: () {
-              if (controller.isSwapped.value) {
-                if (hintId == 0) {
-                  controller.destinationTextController.text =
-                      kPersianDigit(controller.minimumExchangeAmount.value);
-                  controller.secondOnChange(
-                      controller.destinationTextController.text);
+              if (!controller.isFixedPressed.value) {
+                if (!controller.isSwapped.value) {
+                  if (hintId == 0) {
+                    controller.sourceTextController.text =
+                        kPersianDigit(controller.minimumExchangeAmount.value);
+                    controller
+                        .firstOnChange(controller.sourceTextController.text);
+                  }
                 } else {
-                  controller.sourceTextController.text =
-                      kPersianDigit(controller.minimumExchangeAmount.value);
-                  controller
-                      .firstOnChange(controller.sourceTextController.text);
+                  if (hintId == 1) {
+                    controller.sourceTextController.text =
+                        kPersianDigit(controller.minimumExchangeAmount.value);
+                    controller
+                        .firstOnChange(controller.sourceTextController.text);
+                  }
                 }
-              } else {
-                if (hintId == 0) {
-                  controller.sourceTextController.text =
-                      kPersianDigit(controller.minimumExchangeAmount.value);
-                  controller
-                      .firstOnChange(controller.sourceTextController.text);
-                } else {
-                  controller.destinationTextController.text =
-                      kPersianDigit(controller.minimumExchangeAmount.value);
-                  controller.secondOnChange(
-                      controller.destinationTextController.text);
-                }
+                controller.isSourceHasLimitation = false.obs;
+                controller.isDestinationHasLimitation = false.obs;
+                controller.update();
               }
-
-              controller.isSourceHasLimitation = false.obs;
-              controller.isDestinationHasLimitation = false.obs;
-              controller.update();
             },
             style: ButtonStyle(
                 side: MaterialStateProperty.all<BorderSide?>(
                     const BorderSide(color: Colors.red, width: 0))),
-            child: Text(' ${controller.exchangeRate!.minimumExchangeAmount!}',
-                style: Theme.of(context).textTheme.headline4!.copyWith(
-                      color: Colors.black,
-                      decoration: TextDecoration.underline,
-                    )),
+            child: Column(
+              children: [
+                Text(' ${controller.exchangeRate!.minimumExchangeAmount!}',
+                    style: controller.isFixedPressed.value
+                        ? Theme.of(context).textTheme.headline4!.copyWith(
+                              color: Colors.black,
+                            )
+                        : Theme.of(context).textTheme.headline4!.copyWith(
+                              color: Colors.black,
+                              decoration: TextDecoration.underline,
+                            )),
+                if (!controller.isFixedPressed.value) const Divider()
+              ],
+            ),
           ),
         ],
       );
     } else {
       return Column(
         children: [
-          Row(
-            children: [
-              Text(
-                'ّ بیشترین مقدار قابل مبادله ',
-                style: Theme.of(context)
-                    .textTheme
-                    .headline4!
-                    .copyWith(color: Colors.black),
-              ),
-              Text(
-                '${currency!.symbol!.toUpperCase()}'
-                ':',
-                style: Theme.of(context)
-                    .textTheme
-                    .headline4!
-                    .copyWith(color: Colors.black),
-              ),
-              TextButton(
-                onPressed: () {
-                  if (hintId == 0) {
-                    controller.sourceTextController.text =
-                        kPersianDigit(controller.maximumExchangeAmount.value);
-                    controller
-                        .firstOnChange(controller.sourceTextController.text);
-                  } else {
-                    /* if (controller.isSwapped.value) {
-                      controller.destinationTextController.text =
-                          kPersianDigit(controller.minimumExchangeAmount.value);
-                      controller.secondOnChange(
-                          controller.destinationTextController.text);
+          FittedBox(
+            child: Row(
+              children: [
+                Text(
+                  'ّ بیشترین مقدار قابل مبادله ',
+                  style: Theme.of(context)
+                      .textTheme
+                      .headline4!
+                      .copyWith(color: Colors.black),
+                ),
+                Text(
+                  '${currency!.symbol!.toUpperCase()}'
+                  ':',
+                  style: Theme.of(context)
+                      .textTheme
+                      .headline4!
+                      .copyWith(color: Colors.black),
+                ),
+                TextButton(
+                  onPressed: () {
+                    if (!controller.isFixedPressed.value) {
+                      if (!controller.isSwapped.value) {
+                        if (hintId == 0) {
+                          controller.sourceTextController.text = kPersianDigit(
+                              controller.maximumExchangeAmount.value);
+                          controller.firstOnChange(
+                              controller.sourceTextController.text);
+                        }
+                      } else {
+                        if (hintId == 1) {
+                          controller.sourceTextController.text = kPersianDigit(
+                              controller.maximumExchangeAmount.value);
+                          controller.firstOnChange(
+                              controller.sourceTextController.text);
+                        }
+                      }
+                      controller.isSecondTyping = false.obs;
+                      controller.isSourceHasLimitation = false.obs;
+                      controller.isDestinationHasLimitation = false.obs;
+                      controller.update();
                     }
-                    {
-                      controller.sourceTextController.text =
-                          kPersianDigit(controller.minimumExchangeAmount.value);
-                      controller.firstOnChange(
-                        controller.sourceTextController.text,
-                      );
-                    } */
-                  }
-                  controller.isSecondTyping = false.obs;
-                  controller.isSourceHasLimitation = false.obs;
-                  controller.isDestinationHasLimitation = false.obs;
-                  controller.update();
-                },
-                style: ButtonStyle(
-                    side: MaterialStateProperty.all<BorderSide?>(
-                        const BorderSide(color: Colors.red, width: 0))),
-                child:
-                    Text(' ${controller.exchangeRate!.maximumExchangeAmount!}',
-                        style: Theme.of(context).textTheme.headline4!.copyWith(
-                              color: Colors.black,
-                              decoration: TextDecoration.underline,
-                            )),
-              ),
-            ],
+                  },
+                  style: ButtonStyle(
+                      side: MaterialStateProperty.all<BorderSide?>(
+                          const BorderSide(color: Colors.red, width: 0))),
+                  child: Text(
+                      ' ${controller.exchangeRate!.maximumExchangeAmount!}',
+                      style: controller.isFixedPressed.value
+                          ? Theme.of(context).textTheme.headline4!.copyWith(
+                                color: Colors.black,
+                              )
+                          : Theme.of(context).textTheme.headline4!.copyWith(
+                                color: Colors.black,
+                                decoration: TextDecoration.underline,
+                              )),
+                ),
+              ],
+            ),
           ),
         ],
       );

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
-import 'package:tv1/frontend/pages/address/address_page_controller.dart';
 
+import '../../../../frontend/pages/address/address_page_controller.dart';
 import '../../../components/toggel_bar.dart';
 import '../../../components/custom_button.dart';
 
@@ -35,8 +35,7 @@ class AddressBookScreen extends StatelessWidget {
           ),
           SizedBox(
             // height: Get.height < 700 ? Get.height * 0.5 : Get.height * 0.55,
-            height:
-                Get.height < 700 ? Get.height * 0.4295 : Get.height * 0.4795,
+            height: Get.height < 700 ? Get.height * 0.4 : Get.height * 0.46,
             child: IndexedStack(
               index: controller.currentToggleItem.value,
               children: subScreen,

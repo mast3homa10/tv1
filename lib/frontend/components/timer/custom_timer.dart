@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:tv1/frontend/pages/exchange/exchange_page_controller.dart';
 
 class CustomTimer extends StatefulWidget {
   const CustomTimer({Key? key, this.seconds = 120}) : super(key: key);
@@ -14,6 +16,7 @@ class _CustomTimerState extends State<CustomTimer> {
   var time = '';
   var seconds = 120;
   Timer? timer;
+  final exchangeController = Get.put(ExchangePageController());
   @override
   void initState() {
     super.initState();
@@ -29,6 +32,7 @@ class _CustomTimerState extends State<CustomTimer> {
   @override
   void dispose() {
     super.dispose();
+
     timer?.cancel();
     setState(() {});
     log('finish');
@@ -44,9 +48,33 @@ class _CustomTimerState extends State<CustomTimer> {
         // log(time);
       } else {
         // Get.snackbar('توجه!', "زمان به پایان رسید");
-        timer?.cancel();
-        setState(() {});
-        log('finish');
+
+        if (!exchangeController.isFixedPressed.value) {
+          setState(() {
+            timer?.cancel();
+          });
+          log('finish');
+        } else {
+          if (!exchangeController.isSwapped.value) {
+            exchangeController.updateExchange(
+              source: exchangeController.sourceCurrency,
+              destination: exchangeController.destinationCurrency,
+              isFix: true,
+              isForReverse: true,
+            );
+          } else {
+            exchangeController.updateExchange(
+              source: exchangeController.destinationCurrency,
+              destination: exchangeController.sourceCurrency,
+              isFix: true,
+              isForReverse: true,
+            );
+          }
+          exchangeController.isSecondTyping = true.obs;
+          exchangeController.update();
+          seconds = exchangeController.time.value;
+          setState(() {});
+        }
       }
     });
   }
